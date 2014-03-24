@@ -21,7 +21,6 @@ void loadBlenderDepthmap(const std::string file_name,
                          const vk::AbstractCamera& cam,
                          cv::Mat& img)
 {
-  printf("Reading file '%s'\n", file_name.c_str());
   std::ifstream file_stream(file_name.c_str());
   assert(file_stream.is_open());
   img = cv::Mat(cam.height(), cam.width(), CV_32FC1);
