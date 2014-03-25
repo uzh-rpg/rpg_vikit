@@ -2,7 +2,7 @@
 
 import subprocess, re
 
-def getCpuInfo():
+def get_cpu_info():
 	command = "cat /proc/cpuinfo"
 	all_info = subprocess.check_output(command, shell=True).strip()
 	for line in all_info.split("\n"):
