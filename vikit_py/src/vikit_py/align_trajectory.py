@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-import np as np
+import numpy as np
 
 def align_sim3(model, data):
-  """Implementation of the paper: S. Umeyama, “Least-Squares Estimation 
-  of Transformation Parameters Between Two Point Patterns,” 
+  """Implementation of the paper: S. Umeyama, Least-Squares Estimation 
+  of Transformation Parameters Between Two Point Patterns,
   IEEE Trans. Pattern Anal. Mach. Intell., vol. 13, no. 4, 1991.
 
   Input:

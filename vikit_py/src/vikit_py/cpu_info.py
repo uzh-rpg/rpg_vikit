@@ -7,4 +7,5 @@ def get_cpu_info():
 	all_info = subprocess.check_output(command, shell=True).strip()
 	for line in all_info.split("\n"):
 		if "model name" in line:
-			return re.sub( ".*model name.*:", "", line,1)
+			model_name = re.sub(".*model name.*:", "", line,1).strip()
+			return model_name.replace("(R)","").replace("(TM)", "")
