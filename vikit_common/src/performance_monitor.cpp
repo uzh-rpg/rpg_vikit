@@ -18,6 +18,7 @@ PerformanceMonitor::PerformanceMonitor()
 
 PerformanceMonitor::~PerformanceMonitor()
 {
+  ofs_.flush();
   ofs_.close();
 }
 
@@ -65,7 +66,7 @@ void PerformanceMonitor::startTimer(const string& name)
   auto t = timers_.find(name);
   if(t == timers_.end()) {
     printf("Timer = %s\n", name.c_str());
-    throw std::runtime_error("Timer not registered");
+    throw std::runtime_error("startTimer: Timer not registered");
   }
   t->second.start();
 }
@@ -75,7 +76,7 @@ void PerformanceMonitor::stopTimer(const string& name)
   auto t = timers_.find(name);
   if(t == timers_.end()) {
     printf("Timer = %s\n", name.c_str());
-    throw std::runtime_error("Timer not registered");
+    throw std::runtime_error("stopTimer: Timer not registered");
   }
   t->second.stop();
 }
