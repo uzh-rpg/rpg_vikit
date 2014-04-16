@@ -24,6 +24,7 @@ def align_sim3(model, data):
   mu_D = data.mean(0)
   model_zerocentered = model - mu_M
   data_zerocentered = data - mu_D
+  n = np.shape(model)[0]
 
   # correlation
   C = 1.0/n*np.dot(model_zerocentered.transpose(), data_zerocentered)
