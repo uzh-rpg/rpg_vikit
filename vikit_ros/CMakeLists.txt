@@ -14,7 +14,7 @@ ELSE()
 ENDIF()
 
 # Add catkin and required ROS packages
-FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp vikit_common visualization_msgs tf)
+FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp vikit_common visualization_msgs tf cmake_modules)
 
 # Add plain cmake packages 
 FIND_PACKAGE(OpenCV REQUIRED)

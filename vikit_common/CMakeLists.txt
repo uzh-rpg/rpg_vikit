@@ -30,7 +30,7 @@ ELSE()
 ENDIF()
 
 # Add catkin and required ROS packages
-FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp)
+FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp cmake_modules)
 
 # Add plain cmake packages 
 FIND_PACKAGE(OpenCV REQUIRED)
@@ -51,7 +51,7 @@ INCLUDE_DIRECTORIES(
 # Describe catkin Project
 catkin_package(
     DEPENDS Eigen OpenCV Sophus Boost
-    CATKIN_DEPENDS roscpp 
+    CATKIN_DEPENDS roscpp
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}
 )
