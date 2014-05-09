@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <stdlib.h>
-
+#include <memory>
 namespace vk {
 namespace robust_cost {
 
@@ -34,6 +34,7 @@ public:
   virtual ~ScaleEstimator() {};
   virtual float compute(std::vector<float>& errors) const = 0;
 };
+typedef std::shared_ptr<ScaleEstimator> ScaleEstimatorPtr;
 
 class UnitScaleEstimator : public ScaleEstimator
 {
@@ -94,6 +95,7 @@ public:
   virtual float value(const float& x) const = 0;
   virtual void configure(const float& param) {};
 };
+typedef std::shared_ptr<WeightFunction> WeightFunctionPtr;
 
 class UnitWeightFunction : public WeightFunction
 {

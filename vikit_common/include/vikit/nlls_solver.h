@@ -51,7 +51,6 @@ protected:
   Matrix<double, D, 1>  Jres_;    //!< Jacobian x Residual
   Matrix<double, D, 1>  x_;       //!< update step
   double                chi2_;
-  bool                  is_initial_chi2_provided_;
   double                rho_;
   Method                method_;
 
@@ -60,7 +59,7 @@ protected:
   virtual double
   computeResiduals      (const ModelType& model,
                          bool linearize_system,
-                         bool compute_weight_scale = false) = 0;
+                         bool compute_weight_scale) = 0;
 
   /// Solve the linear system H*x = Jres. This function must set the update
   /// step in the member variable x_. Must return true if the system could be
@@ -101,11 +100,10 @@ public:
   // robust least squares
   bool                  use_weights_;
   float                 scale_;
-  robust_cost::ScaleEstimator* scale_estimator_;
-  robust_cost::WeightFunction* weight_function_;
+  robust_cost::ScaleEstimatorPtr scale_estimator_;
+  robust_cost::WeightFunctionPtr weight_function_;
 
   NLLSSolver() :
-    is_initial_chi2_provided_(false),
     method_(LevenbergMarquardt),
     mu_init_(0.01f),
     mu_(mu_init_),
@@ -126,12 +124,7 @@ public:
     weight_function_(NULL)
   { }
 
-  virtual
-  ~NLLSSolver()
-  {
-    delete scale_estimator_;
-    delete weight_function_;
-  }
+  virtual ~NLLSSolver() {}
 
   /// Calls the GaussNewton or LevenbergMarquardt optimization strategy
   void optimize(ModelType& model);
@@ -147,9 +140,6 @@ public:
 
   /// Reset all parameters to restart the optimization
   void reset();
-
-  /// Provide the initial squared error
-  void setInitialChi2(double c);
 
   /// Get the squared error
   const double& getChi2() const;

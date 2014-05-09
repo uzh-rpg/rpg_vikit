@@ -39,21 +39,20 @@ optimizeGaussNewton(ModelType& model)
     rho_ = 0;
     startIteration();
 
-
     H_.setZero();
     Jres_.setZero();
 
     // compute initial error
     n_meas_ = 0;
-    double new_chi2 = computeResiduals(model, true);
+    double new_chi2 = computeResiduals(model, true, false);
 
     // solve the linear system
     if(!solve())
     {
       // matrix was singular and could not be computed
-      cout << "Matrix is close to singular! Stop Optimizing." << endl;
-      cout << "H = " << H_ << endl;
-      cout << "Jres = " << Jres_ << endl;
+      std::cout << "Matrix is close to singular! Stop Optimizing." << std::endl;
+      std::cout << "H = " << H_ << std::endl;
+      std::cout << "Jres = " << Jres_ << std::endl;
       stop_ = true;
     }
 
@@ -62,11 +61,11 @@ optimizeGaussNewton(ModelType& model)
     {
       if(verbose_)
       {
-        cout << "It. " << iter_
-             << "\t Failure"
-             << "\t new_chi2 = " << new_chi2
-             << "\t Error increased. Stop optimizing."
-             << endl;
+        std::cout << "It. " << iter_
+                  << "\t Failure"
+                  << "\t new_chi2 = " << new_chi2
+                  << "\t Error increased. Stop optimizing."
+                  << std::endl;
       }
       model = old_model; // rollback
       break;
@@ -82,11 +81,12 @@ optimizeGaussNewton(ModelType& model)
 
     if(verbose_)
     {
-      cout << "It. " << iter_
-           << "\t Success"
-           << "\t new_chi2 = " << new_chi2
-           << "\t n_meas = " << n_meas_
-           << endl;
+      std::cout << "It. " << iter_
+                << "\t Success"
+                << "\t new_chi2 = " << new_chi2
+                << "\t n_meas = " << n_meas_
+                << "\t x_norm = " << vk::norm_max(x_)
+                << std::endl;
     }
 
     finishIteration();
@@ -95,9 +95,6 @@ optimizeGaussNewton(ModelType& model)
     if(vk::norm_max(x_)<=eps_)
       break;
   }
-
-  // reset
-  is_initial_chi2_provided_ = false;
 }
 
 template <int D, typename T>
@@ -109,8 +106,7 @@ optimizeLevenbergMarquardt(ModelType& model)
     computeResiduals(model, false, true);
 
   // compute the initial error
-  if(!is_initial_chi2_provided_)
-    chi2_ = computeResiduals(model, true);
+  chi2_ = computeResiduals(model, true, false);
 
   if(verbose_)
     cout << "init chi2 = " << chi2_
@@ -150,7 +146,7 @@ optimizeLevenbergMarquardt(ModelType& model)
 
       // compute initial error
       n_meas_ = 0;
-      computeResiduals(model, true);
+      computeResiduals(model, true, false);
 
       // add damping term:
       H_ += (H_.diagonal()*mu_).asDiagonal();
@@ -163,7 +159,7 @@ optimizeLevenbergMarquardt(ModelType& model)
 
         // compute error with new model and compare to old error
         n_meas_ = 0;
-        new_chi2 = computeResiduals(new_model, false);
+        new_chi2 = computeResiduals(new_model, false, false);
         rho_ = chi2_-new_chi2;
       }
       else
@@ -225,69 +221,62 @@ optimizeLevenbergMarquardt(ModelType& model)
 
     finishIteration();
   }
-
-  // reset
-  is_initial_chi2_provided_ = false;
 }
 
 
 template <int D, typename T>
 void vk::NLLSSolver<D, T>::
-setRobustCostFunction(ScaleEstimatorType scale_estimator_t,
-                      WeightFunctionType weight_function_t)
+setRobustCostFunction(ScaleEstimatorType scale_estimator,
+                      WeightFunctionType weight_function)
 {
-  switch(scale_estimator_t)
+  switch(scale_estimator)
   {
-    case UnitScale:
-      printf("Using Unit Scale Estimator\n");
-      scale_estimator_ = new robust_cost::UnitScaleEstimator();
-      break;
     case TDistScale:
-      printf("Using TDistribution Scale Estimator\n");
-      scale_estimator_ = new robust_cost::TDistributionScaleEstimator();
+      if(verbose_)
+        printf("Using TDistribution Scale Estimator\n");
+      scale_estimator_.reset(new robust_cost::TDistributionScaleEstimator());
+      use_weights_=true;
       break;
     case MADScale:
-      printf("Using MAD Scale Estimator\n");
-      scale_estimator_ = new robust_cost::MADScaleEstimator();
+      if(verbose_)
+        printf("Using MAD Scale Estimator\n");
+      scale_estimator_.reset(new robust_cost::MADScaleEstimator());
+      use_weights_=true;
     break;
     case NormalScale:
-      printf("Using Normal Scale Estimator\n");
-      scale_estimator_ = new robust_cost::NormalDistributionScaleEstimator();
+      if(verbose_)
+        printf("Using Normal Scale Estimator\n");
+      scale_estimator_.reset(new robust_cost::NormalDistributionScaleEstimator());
+      use_weights_=true;
       break;
-    default: std::runtime_error("Scale Estimator unknown");
+    default:
+      if(verbose_)
+        printf("Using Unit Scale Estimator\n");
+      scale_estimator_.reset(new robust_cost::UnitScaleEstimator());
+      use_weights_=false;
   }
 
-  switch(weight_function_t)
+  switch(weight_function)
   {
-    case UnitWeight:
-      printf("Using Unit Weight Function\n");
-      weight_function_ = new robust_cost::UnitWeightFunction();
-      break;
     case TDistWeight:
-      printf("Using TDistribution Weight Function\n");
-      weight_function_ = new robust_cost::TDistributionWeightFunction();
+      if(verbose_)
+        printf("Using TDistribution Weight Function\n");
+      weight_function_.reset(new robust_cost::TDistributionWeightFunction());
       break;
     case TukeyWeight:
-      printf("Using Tukey Weight Function\n");
-      weight_function_ = new robust_cost::TukeyWeightFunction();
+      if(verbose_)
+        printf("Using Tukey Weight Function\n");
+      weight_function_.reset(new robust_cost::TukeyWeightFunction());
       break;
     case HuberWeight:
-      printf("Using Huber Weight Function\n");
-      weight_function_ = new robust_cost::HuberWeightFunction();
+      if(verbose_)
+        printf("Using Huber Weight Function\n");
+      weight_function_.reset(new robust_cost::HuberWeightFunction());
       break;
-    default: std::runtime_error("Weight function unknown");
-  }
-  use_weights_ = true;
-}
-
-template <int D, typename T>
-void vk::NLLSSolver<D, T>::
-setInitialChi2(double c)
-{
-  if(!is_initial_chi2_provided_)
-  {
-    chi2_ = c;
-    is_initial_chi2_provided_ = true;
+    default:
+      if(verbose_)
+        printf("Using Unit Weight Function\n");
+      weight_function_.reset(new robust_cost::UnitWeightFunction());
   }
 }
 
@@ -295,13 +284,13 @@ template <int D, typename T>
 void vk::NLLSSolver<D, T>::
 reset()
 {
+  chi2_ = 1e10;
   mu_ = mu_init_;
   nu_ = nu_init_;
   n_meas_ = 0;
   n_iter_ = n_iter_init_;
   iter_ = 0;
   stop_ = false;
-  is_initial_chi2_provided_ = false;
 }
 
 template <int D, typename T>
