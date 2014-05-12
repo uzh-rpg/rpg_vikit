@@ -13,8 +13,7 @@
 #include <stdexcept>
 
 template <int D, typename T>
-void vk::NLLSSolver<D, T>::
-optimize(ModelType& model)
+void vk::NLLSSolver<D, T>::optimize(ModelType& model)
 {
   if(method_ == GaussNewton)
     optimizeGaussNewton(model);
@@ -23,8 +22,7 @@ optimize(ModelType& model)
 }
 
 template <int D, typename T>
-void vk::NLLSSolver<D, T>::
-optimizeGaussNewton(ModelType& model)
+void vk::NLLSSolver<D, T>::optimizeGaussNewton(ModelType& model)
 {
   // Compute weight scale
   if(use_weights_)
@@ -45,6 +43,10 @@ optimizeGaussNewton(ModelType& model)
     // compute initial error
     n_meas_ = 0;
     double new_chi2 = computeResiduals(model, true, false);
+
+    // add prior
+    if(have_prior_)
+      applyPrior(model);
 
     // solve the linear system
     if(!solve())
@@ -98,8 +100,7 @@ optimizeGaussNewton(ModelType& model)
 }
 
 template <int D, typename T>
-void vk::NLLSSolver<D, T>::
-optimizeLevenbergMarquardt(ModelType& model)
+void vk::NLLSSolver<D, T>::optimizeLevenbergMarquardt(ModelType& model)
 {
   // Compute weight scale
   if(use_weights_)
@@ -150,6 +151,10 @@ optimizeLevenbergMarquardt(ModelType& model)
 
       // add damping term:
       H_ += (H_.diagonal()*mu_).asDiagonal();
+
+      // add prior
+      if(have_prior_)
+        applyPrior(model);
 
       // solve the linear system
       if(solve())
@@ -225,9 +230,9 @@ optimizeLevenbergMarquardt(ModelType& model)
 
 
 template <int D, typename T>
-void vk::NLLSSolver<D, T>::
-setRobustCostFunction(ScaleEstimatorType scale_estimator,
-                      WeightFunctionType weight_function)
+void vk::NLLSSolver<D, T>::setRobustCostFunction(
+    ScaleEstimatorType scale_estimator,
+    WeightFunctionType weight_function)
 {
   switch(scale_estimator)
   {
@@ -281,9 +286,19 @@ setRobustCostFunction(ScaleEstimatorType scale_estimator,
 }
 
 template <int D, typename T>
-void vk::NLLSSolver<D, T>::
-reset()
+void vk::NLLSSolver<D, T>::setPrior(
+    const Matrix<double, D, 1>&  prior,
+    const Matrix<double, D, D>&  Information)
 {
+  have_prior_ = true;
+  prior_ = prior;
+  I_prior_ = Information;
+}
+
+template <int D, typename T>
+void vk::NLLSSolver<D, T>::reset()
+{
+  have_prior_ = false;
   chi2_ = 1e10;
   mu_ = mu_init_;
   nu_ = nu_init_;
@@ -294,10 +309,15 @@ reset()
 }
 
 template <int D, typename T>
-inline const double& vk::NLLSSolver<D, T>::
-getChi2() const
+inline const double& vk::NLLSSolver<D, T>::getChi2() const
 {
   return chi2_;
+}
+
+template <int D, typename T>
+inline const vk::Matrix<double, D, D>& vk::NLLSSolver<D, T>::getInformationMatrix() const
+{
+  return H_;
 }
 
 #endif /* LM_SOLVER_IMPL_HPP_ */

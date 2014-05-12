@@ -50,6 +50,9 @@ protected:
   Matrix<double, D, D>  H_;       //!< Hessian approximation
   Matrix<double, D, 1>  Jres_;    //!< Jacobian x Residual
   Matrix<double, D, 1>  x_;       //!< update step
+  bool                  have_prior_;
+  Matrix<double, D, 1>  prior_;
+  Matrix<double, D, D>  I_prior_; //!< Prior information matrix (inverse covariance)
   double                chi2_;
   double                rho_;
   Method                method_;
@@ -69,6 +72,9 @@ protected:
 
   virtual void
   update                (const ModelType& old_model, ModelType& new_model) = 0;
+
+  virtual void
+  applyPrior            (const ModelType& current_model) { }
 
   virtual void
   startIteration        () { }
@@ -104,6 +110,7 @@ public:
   robust_cost::WeightFunctionPtr weight_function_;
 
   NLLSSolver() :
+    have_prior_(false),
     method_(LevenbergMarquardt),
     mu_init_(0.01f),
     mu_(mu_init_),
@@ -136,13 +143,23 @@ public:
   void optimizeLevenbergMarquardt(ModelType& model);
 
   /// Specify the robust cost that should be used and the appropriate scale estimator
-  void setRobustCostFunction(ScaleEstimatorType scale_estimator_t, WeightFunctionType weight_function_t);
+  void setRobustCostFunction(
+      ScaleEstimatorType scale_estimator,
+      WeightFunctionType weight_function);
+
+  /// Add prior to optimization.
+  void setPrior(
+      const Matrix<double, D, 1>&  prior,
+      const Matrix<double, D, D>&  Information);
 
   /// Reset all parameters to restart the optimization
   void reset();
 
   /// Get the squared error
   const double& getChi2() const;
+
+  /// The Information matrix is equal to the inverse covariance matrix.
+  const Matrix<double, D, D>& getInformationMatrix() const;
 };
 
 } // end namespace vk
