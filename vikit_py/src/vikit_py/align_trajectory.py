@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import numpy as np
+import vikit_py.transformations as transformations
 
 def align_sim3(model, data):
   """Implementation of the paper: S. Umeyama, Least-Squares Estimation 
@@ -98,11 +99,11 @@ def hand_eye_calib(q_gt, q_es, p_gt, p_es, I, delta=10, verbose=True):
   b_A = np.zeros([3*n,1])
   b_B = np.zeros([3*n,1])
   for ix, i in enumerate(I):
-    A1 = ru.quat2dcm(q_es[i,:])
-    A2 = ru.quat2dcm(q_es[i+delta,:])
+    A1 = transformations.quaternion_matrix(q_es[i,:])[:3,:3]
+    A2 = transformations.quaternion_matrix(q_es[i+delta,:])[:3,:3]
     A  = np.dot(A1.transpose(), A2)
-    B1 = ru.quat2dcm(q_gt[i,:])
-    B2 = ru.quat2dcm(q_gt[i+delta,:])
+    B1 = transformations.quaternion_matrix(q_gt[i,:])[:3,:3]
+    B2 = transformations.quaternion_matrix(q_gt[i+delta,:])[:3,:3]
     B  = np.dot(B1.transpose(), B2)
     alpha = _matrix_log(A)
     beta = _matrix_log(B)
