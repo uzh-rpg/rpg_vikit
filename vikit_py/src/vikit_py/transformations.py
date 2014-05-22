@@ -216,6 +216,10 @@ def translation_from_matrix(matrix):
     """
     return numpy.array(matrix, copy=False)[:3, 3].copy()
 
+def convert_3x3_to_4x4(matrix_3x3):
+    M = numpy.identity(4)
+    M[:3,:3] = matrix_3x3
+    return M
 
 def reflection_matrix(point, normal):
     """Return matrix to mirror at plane defined by point and normal vector.
