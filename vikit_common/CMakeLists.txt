@@ -4,7 +4,7 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8.3)
 SET(CMAKE_BUILD_TYPE Release) # Release, RelWithDebInfo
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMakeModules/")
-SET(USE_ROS FALSE) # Set False if you want to build this package without Catkin
+SET(USE_ROS TRUE) # Set False if you want to build this package without Catkin
 
 # Set build flags. Set IS_ARM on odroid board as environment variable
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
