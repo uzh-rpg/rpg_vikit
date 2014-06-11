@@ -4,7 +4,7 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8.3)
 SET(CMAKE_BUILD_TYPE Release) # Release, RelWithDebInfo
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMakeModules/")
-SET(USE_ROS TRUE) # Set False if you want to build this package without Catkin
+SET(USE_ROS FALSE) # Set False if you want to build this package without Catkin
 
 # Set build flags. Set IS_ARM on odroid board as environment variable
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
@@ -33,7 +33,6 @@ INCLUDE_DIRECTORIES(
 )
 
 IF(USE_ROS)
-  # Add catkin and required ROS packages
   FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp cmake_modules)
   LIST(APPEND INCLUDE_DIRECTORIES ${catkin_INCLUDE_DIRS})
   catkin_package(
@@ -43,10 +42,8 @@ IF(USE_ROS)
     LIBRARIES ${PROJECT_NAME}
   )
 ELSE()
-  #set the default path for built executables to the "bin" directory
-  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-  #set the default path for built libraries to the "lib" directory
-  set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+  SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+  SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 ENDIF()
 
 # Set Sourcefiles
