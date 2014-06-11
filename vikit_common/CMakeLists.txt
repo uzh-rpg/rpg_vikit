@@ -4,20 +4,11 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8.3)
 SET(CMAKE_BUILD_TYPE Release) # Release, RelWithDebInfo
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMakeModules/")
+SET(USE_ROS TRUE) # Set False if you want to build this package without Catkin
 
-# Set IS_ARM on odroid board as environment variable
-IF(DEFINED ENV{ARM_ARCHITECTURE})
-  SET(IS_ARM TRUE)
-ELSE()
-  SET(IS_ARM FALSE)
-ENDIF()
-
-# Set definitions
-ADD_DEFINITIONS(-DUSE_ROS)
-
-# Set build flags
+# Set build flags. Set IS_ARM on odroid board as environment variable
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
-IF(IS_ARM)
+IF(DEFINED ENV{ARM_ARCHITECTURE})
   SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mfpu=neon -march=armv7-a -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
 ELSE()
   SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mmmx -msse -msse -msse2 -msse3 -mssse3 -fomit-frame-pointer -fsee -fno-signed-zeros -fno-math-errno -funroll-loops")
@@ -27,9 +18,6 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 ELSE()
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
-
-# Add catkin and required ROS packages
-FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp cmake_modules)
 
 # Add plain cmake packages 
 FIND_PACKAGE(OpenCV REQUIRED)
@@ -42,16 +30,21 @@ INCLUDE_DIRECTORIES(
   ${Eigen_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${Sophus_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
 )
 
-# Describe catkin Project
-catkin_package(
+IF(USE_ROS)
+  FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp cmake_modules)
+  LIST(APPEND INCLUDE_DIRECTORIES ${catkin_INCLUDE_DIRS})
+  catkin_package(
     DEPENDS Eigen OpenCV Sophus
     CATKIN_DEPENDS roscpp
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}
-)
+  )
+ELSE()
+  SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+  SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+ENDIF()
 
 # Set Sourcefiles
 LIST(APPEND SOURCEFILES src/atan_camera.cpp
@@ -67,11 +60,14 @@ LIST(APPEND SOURCEFILES src/atan_camera.cpp
 
 # Create vikit library
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCEFILES})
-TARGET_LINK_LIBRARIES(
-  ${PROJECT_NAME}
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   ${OpenCV_LIBS}
   ${Sophus_LIBRARIES}
   ${catkin_LIBRARIES})
+
+IF(USE_ROS)
+  TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${catkin_LIBRARIES})
+ENDIF()
 
 # Tests
 ADD_EXECUTABLE(test_vk_common_camera test/test_camera.cpp)
