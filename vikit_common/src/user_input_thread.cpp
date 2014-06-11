@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <vikit/user_input_thread.h>
+#include <chrono>
 
 namespace vk {
 
@@ -21,14 +22,14 @@ UserInputThread::UserInputThread() :
   new_terminal_settings_.c_cc[VMIN] = 1; //minimum of number input read.
   tcsetattr(0, TCSANOW, &new_terminal_settings_); // use these new terminal i/o settings now
 
-  user_input_thread_ = new boost::thread(&UserInputThread::acquireUserInput, this);
+  user_input_thread_ = new std::thread(&UserInputThread::acquireUserInput, this);
 }
 
 UserInputThread::~UserInputThread()
 {
   tcsetattr(0, TCSANOW, &original_terminal_settings_);
-  user_input_thread_->interrupt();
   user_input_thread_->join();
+  printf("UserInputThread destructed.\n");
 }
 
 char UserInputThread::getInput()
@@ -57,7 +58,7 @@ void UserInputThread::acquireUserInput()
     c = 0;
 
     // interruption point:
-    boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 

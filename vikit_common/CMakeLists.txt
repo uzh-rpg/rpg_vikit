@@ -17,7 +17,6 @@ ADD_DEFINITIONS(-DUSE_ROS)
 
 # Set build flags
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
 IF(IS_ARM)
   SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mfpu=neon -march=armv7-a -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
 ELSE()
@@ -36,7 +35,6 @@ FIND_PACKAGE(catkin REQUIRED COMPONENTS roscpp cmake_modules)
 FIND_PACKAGE(OpenCV REQUIRED)
 FIND_PACKAGE(Eigen REQUIRED)
 FIND_PACKAGE(Sophus REQUIRED)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS signals system thread)
 
 # Include dirs
 INCLUDE_DIRECTORIES(
@@ -44,13 +42,12 @@ INCLUDE_DIRECTORIES(
   ${Eigen_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${Sophus_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
 # Describe catkin Project
 catkin_package(
-    DEPENDS Eigen OpenCV Sophus Boost
+    DEPENDS Eigen OpenCV Sophus
     CATKIN_DEPENDS roscpp
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}
