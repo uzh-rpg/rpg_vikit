@@ -96,6 +96,7 @@ ForwardCompositionalSE3( vector<PinholeCamera>& cam_pyr,
       log_(test_id < 0),
       res_thresh_(res_thresh)
 {
+   (void)n_levels;
   n_iter_ = n_iter;
   method_ = method;
 
@@ -310,6 +311,7 @@ SecondOrderMinimisationSE3( vector<PinholeCamera>& cam_pyr,
 double SecondOrderMinimisationSE3::
 computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale)
 {
+   (void)compute_weight_scale;
   // Warp the image such that it aligns with the template image
   double chi2 = 0;
   size_t n_pixels = 0;
