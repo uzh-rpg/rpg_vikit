@@ -78,3 +78,14 @@ TARGET_LINK_LIBRARIES(test_vk_common_triangulation ${PROJECT_NAME})
 
 ADD_EXECUTABLE(test_vk_common_patch_score test/test_patch_score.cpp)
 TARGET_LINK_LIBRARIES(test_vk_common_patch_score ${PROJECT_NAME})
+
+################################################################################
+# Create the vikit_commonConfig.cmake file for other cmake projects.
+GET_TARGET_PROPERTY( FULL_LIBRARY_NAME ${PROJECT_NAME} LOCATION )
+SET(${PROJECT_NAME}_LIBRARIES ${FULL_LIBRARY_NAME} )
+SET(${PROJECT_NAME}_LIBRARY_DIR ${PROJECT_BINARY_DIR} )
+SET(${PROJECT_NAME}_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake @ONLY IMMEDIATE )
+export( PACKAGE ${PROJECT_NAME} )
