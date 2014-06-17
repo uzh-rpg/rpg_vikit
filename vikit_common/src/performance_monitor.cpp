@@ -104,7 +104,7 @@ void PerformanceMonitor::log(const string& name, double data)
 
 void PerformanceMonitor::trace()
 {
-  char buffer[128];
+  //char buffer[128];
   bool first_value = true;
   if(!ofs_.is_open())
     throw std::runtime_error("Performance monitor not correctly initialized");

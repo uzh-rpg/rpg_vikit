@@ -39,8 +39,8 @@ OmniCamera( string calibFile )
   }
 
   //Read polynomial coefficients
-  char* dummy = fgets( buf, CMV_MAX_BUF, f );
-  int result = fscanf( f, "\n" );
+  char* dummy = fgets( buf, CMV_MAX_BUF, f ); (void)dummy;
+  int result = fscanf( f, "\n" ); (void)result;
   result = fscanf( f, "%d", length_pol );
   for( i = 0; i < *length_pol; i++ )
           result = fscanf( f, " %lf", &pol[i] );
