@@ -2,7 +2,7 @@
 #define USER_INPUT_THREAD_H
 
 #include <termios.h>
-#include <boost/thread.hpp>
+#include <thread>
 
 namespace vk {
 
@@ -42,7 +42,7 @@ private:
   int getche();
 
   bool stop_;
-  boost::thread * user_input_thread_;
+  std::thread * user_input_thread_;
   char input_;
 
   struct termios original_terminal_settings_;
