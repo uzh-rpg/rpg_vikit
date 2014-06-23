@@ -68,11 +68,12 @@ bool getDepthmapNormalAtPoint(
   Matrix<double, Dynamic, 1> b; b.resize(n_meas, Eigen::NoChange);
 
   size_t i = 0;
-  std::for_each(pts.begin(), pts.end(), [&](Vector3d& pt){
-    A.row(i) << pt.x(), pt.y(), pt.z(), 1.0;
+  for(list<Vector3d>::iterator it=pts.begin(); it!=pts.end(); ++it)
+  {
+    A.row(i) << it->x(), it->y(), it->z(), 1.0;
     b[i] = 0;
     ++i;
-  });
+  }
 
   JacobiSVD<MatrixXd> svd(A, ComputeThinU | ComputeThinV);
 
@@ -120,6 +121,7 @@ std::istream& operator >>(std::istream& in, ImageNameAndPose& gt)
   in >> qw;
   gt.t_ = Eigen::Vector3d(tx, ty, tz);
   gt.q_ = Eigen::Quaterniond(qw, qx, qy, qz);
+  gt.q_.normalize();
   return in;
 }
 
