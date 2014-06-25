@@ -379,7 +379,7 @@ computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_s
           // evaluate jacobian
           cv::Vec3f cv_float3 = depth_pyr_[level_].at<cv::Vec3f>(v,u);
           Vector3d xyz_tpl(cv_float3[0], cv_float3[1], cv_float3[2]);
-          Vector3d xyz_img(model*xyz_tpl);
+//          Vector3d xyz_img(model*xyz_tpl);
           Matrix<double,2,6> frame_jac;
           frameJac_xyz2uv(xyz_tpl, cam_pyr_[level_].fx(), frame_jac);
 

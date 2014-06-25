@@ -74,7 +74,7 @@ protected:
   update                (const ModelType& old_model, ModelType& new_model) = 0;
 
   virtual void
-  applyPrior            (const ModelType& current_model) { }
+  applyPrior            (const ModelType& /*current_model*/) { }
 
   virtual void
   startIteration        () { }
