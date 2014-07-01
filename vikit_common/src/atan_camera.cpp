@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include <vikit/atan_camera.h>
 #include <vikit/math_utils.h>
 
