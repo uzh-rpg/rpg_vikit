@@ -13,7 +13,8 @@
 #include <math.h>
 #include <Eigen/Core>
 #include <Eigen/StdVector>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
 #include <vikit/math_utils.h>
 #include <vikit/vision.h>
 #include <vikit/pinhole_camera.h>
