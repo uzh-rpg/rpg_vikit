@@ -8,6 +8,7 @@
 #ifndef VIKIT_BLENDER_UTILS_H_
 #define VIKIT_BLENDER_UTILS_H_
 
+#include <list>
 #include <string>
 #include <vikit/pinhole_camera.h>
 #include <vikit/math_utils.h>
