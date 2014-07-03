@@ -51,7 +51,7 @@ protected:
   Matrix<double, D, 1>  Jres_;    //!< Jacobian x Residual
   Matrix<double, D, 1>  x_;       //!< update step
   bool                  have_prior_;
-  Matrix<double, D, 1>  prior_;
+  ModelType prior_;
   Matrix<double, D, D>  I_prior_; //!< Prior information matrix (inverse covariance)
   double                chi2_;
   double                rho_;
@@ -149,7 +149,7 @@ public:
 
   /// Add prior to optimization.
   void setPrior(
-      const Matrix<double, D, 1>&  prior,
+      const ModelType&  prior,
       const Matrix<double, D, D>&  Information);
 
   /// Reset all parameters to restart the optimization
