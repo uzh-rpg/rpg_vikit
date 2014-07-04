@@ -7,10 +7,10 @@
 
 #include <vikit/vision.h>
 
-#if VIKIT_HAVE_SSE2
-#include <emmintrin.h>
-#elif VIKIT_HAVE_NEON
-#include <arm_neon.h>
+#if __SSE2__
+# include <emmintrin.h>
+#elif __ARM_NEON__
+# include <arm_neon.h>
 #endif
 
 namespace vk {

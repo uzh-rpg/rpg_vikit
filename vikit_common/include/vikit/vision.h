@@ -5,8 +5,8 @@
  *      Author: cforster
  */
 
-#ifndef VISION_H_
-#define VISION_H_
+#ifndef VIKIT_VISION_H_
+#define VIKIT_VISION_H_
 
 #include <vikit/aligned_mem.h>
 #include <Eigen/Core>
@@ -72,6 +72,6 @@ void convertRawDepthImageSse_16u_to_32f(cv::Mat& depth_16u, cv::Mat& depth_32f, 
 
 #endif
 
-} // end namespace vk
+} // namespace vk
 
-#endif /* VISION_H_ */
+#endif // VIKIT_VISION_H_

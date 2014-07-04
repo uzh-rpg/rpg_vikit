@@ -18,8 +18,8 @@
  *  along with dvo.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILE_READER_H_
-#define FILE_READER_H_
+#ifndef VIKIT_FILE_READER_H_
+#define VIKIT_FILE_READER_H_
 
 #include <fstream>
 #include <vector>
@@ -98,4 +98,4 @@ private:
 
 } // end namespace vk
 
-#endif /* FILE_READER_H_ */
+#endif // VIKIT_FILE_READER_H_
