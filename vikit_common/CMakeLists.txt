@@ -9,15 +9,16 @@ SET(USE_ROS TRUE) # Set False if you want to build this package without Catkin
 # Set build flags. Set IS_ARM on odroid board as environment variable
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
 IF(DEFINED ENV{ARM_ARCHITECTURE})
-  SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mfpu=neon -march=armv7-a -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon -march=armv7-a")
 ELSE()
-  SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mmmx -msse -msse -msse2 -msse3 -mssse3 -fomit-frame-pointer -fsee -fno-signed-zeros -fno-math-errno -funroll-loops")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx -msse -msse -msse2 -msse3 -mssse3")
 ENDIF()
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 ELSE()
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -fsee -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
 
 # Add plain cmake packages 
 FIND_PACKAGE(OpenCV REQUIRED)
@@ -78,3 +79,19 @@ TARGET_LINK_LIBRARIES(test_vk_common_triangulation ${PROJECT_NAME})
 
 ADD_EXECUTABLE(test_vk_common_patch_score test/test_patch_score.cpp)
 TARGET_LINK_LIBRARIES(test_vk_common_patch_score ${PROJECT_NAME})
+
+
+################################################################################
+# Create the vikit_commonConfig.cmake file for other cmake projects.
+IF(NOT USE_ROS)
+  GET_TARGET_PROPERTY( FULL_LIBRARY_NAME ${PROJECT_NAME} LOCATION )
+  SET(vikit_common_LIBRARIES ${FULL_LIBRARY_NAME} )
+  SET(vikit_common_LIBRARY_DIR ${PROJECT_BINARY_DIR} )
+  SET(vikit_common_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+  CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/vikit_commonConfig.cmake.in
+      ${CMAKE_CURRENT_BINARY_DIR}/vikit_commonConfig.cmake @ONLY IMMEDIATE )
+  export( PACKAGE vikit_common )
+
+  INSTALL(DIRECTORY include/vikit DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN "*.h" )
+  INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+ENDIF()
