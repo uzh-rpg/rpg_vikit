@@ -8,7 +8,6 @@ setup_module()
 ##
 
 set(SOURCES
-   vikit_common/src/img_align.cpp
    vikit_common/src/homography.cpp
    vikit_common/src/pinhole_camera.cpp
    vikit_common/src/robust_cost.cpp
@@ -28,7 +27,6 @@ set(HEADERS
    vikit_common/include/vikit/performance_monitor.h
    vikit_common/include/vikit/file_reader.h
    vikit_common/include/vikit/aligned_mem.h
-   vikit_common/include/vikit/img_align.h
    vikit_common/include/vikit/patch_score.h
    vikit_common/include/vikit/vision.h
    vikit_common/include/vikit/blender_utils.h
