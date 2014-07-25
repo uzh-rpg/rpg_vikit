@@ -47,20 +47,44 @@ ELSE()
   SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 ENDIF()
 
-# Set Sourcefiles
-LIST(APPEND SOURCEFILES src/atan_camera.cpp
-                        src/omni_camera.cpp
-                        src/math_utils.cpp
-                        src/vision.cpp
-                        src/performance_monitor.cpp
-                        src/robust_cost.cpp
-                        src/user_input_thread.cpp
-                        src/pinhole_camera.cpp
-                        src/homography.cpp
-                        src/img_align.cpp)
+# Set source files
+LIST(APPEND VIKIT_SOURCEFILES
+  src/atan_camera.cpp
+  src/omni_camera.cpp
+  src/math_utils.cpp
+  src/vision.cpp
+  src/performance_monitor.cpp
+  src/robust_cost.cpp
+  src/user_input_thread.cpp
+  src/pinhole_camera.cpp
+  src/homography.cpp)
+
+# Set header files
+LIST(APPEND VIKIT_HEADERFILES
+  include/vikit/abstract_camera.h
+  include/vikit/aligned_mem.h
+  include/vikit/atan_camera.h
+  include/vikit/blender_utils.h
+  include/vikit/file_reader.h
+  include/vikit/file_reader_types.h
+  include/vikit/homography.h
+  include/vikit/math_utils.h
+  include/vikit/nlls_solver.h
+  include/vikit/nlls_solver_impl.hpp
+  include/vikit/omni_camera.h
+  include/vikit/patch_score.h
+  include/vikit/performance_monitor.h
+  include/vikit/pinhole_camera.h
+  include/vikit/ringbuffer.h
+  include/vikit/robust_cost.h
+  include/vikit/sample.h
+  include/vikit/timer.h
+  include/vikit/user_input_thread.h
+  include/vikit/vision.h
+)
 
 # Create vikit library
-ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCEFILES})
+ADD_LIBRARY(${PROJECT_NAME} SHARED ${VIKIT_SOURCEFILES} ${VIKIT_HEADERFILES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   ${OpenCV_LIBS}
   ${Sophus_LIBRARIES}

@@ -92,7 +92,6 @@ LIST(APPEND SOURCEFILES
    ${VIKIT_COMMON_RELDIR}/src/user_input_thread.cpp
    ${VIKIT_COMMON_RELDIR}/src/pinhole_camera.cpp
    ${VIKIT_COMMON_RELDIR}/src/homography.cpp
-   ${VIKIT_COMMON_RELDIR}/src/img_align.cpp
 )
 
 LIST(APPEND HEADERS
@@ -103,7 +102,6 @@ LIST(APPEND HEADERS
    ${VIKIT_COMMON_RELDIR}/include/vikit/performance_monitor.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/file_reader.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/aligned_mem.h
-   ${VIKIT_COMMON_RELDIR}/include/vikit/img_align.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/patch_score.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/vision.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/blender_utils.h

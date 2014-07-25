@@ -9,8 +9,8 @@ def align_sim3(model, data):
   IEEE Trans. Pattern Anal. Mach. Intell., vol. 13, no. 4, 1991.
 
   Input:
-  model -- first trajectory (3xn)
-  data -- second trajectory (3xn)
+  model -- first trajectory (3xn), numpy matrix type
+  data -- second trajectory (3xn), numpy matrix type
   
   Output:
   s -- scale factor (scalar)
@@ -53,8 +53,8 @@ def align_se3(model,data):
     """Align two trajectories using the method of Horn (closed-form). 
     
     Input:
-    model -- first trajectory (3xn)
-    data -- second trajectory (3xn)
+    model -- first trajectory (3xn), numpy matrix type
+    data -- second trajectory (3xn), numpy matrix type
     
     Output:
     R -- rotation matrix (3x3)

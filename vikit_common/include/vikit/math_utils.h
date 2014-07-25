@@ -5,10 +5,11 @@
  *      Author: cforster
  */
 
-#ifndef MATH_UTILS_H_
-#define MATH_UTILS_H_
+#ifndef VIKIT_MATH_UTILS_H_
+#define VIKIT_MATH_UTILS_H_
 
-
+#include <cstdlib> // size_t, fabs
+#include <cmath>   // sin, cos
 #include <Eigen/Core>
 #include <Eigen/StdVector>
 #include <sophus/se3.h>
@@ -17,8 +18,9 @@ namespace vk
 {
 
 using namespace Eigen;
-using namespace std;
-using namespace Sophus;
+using Sophus::SE3;
+using std::size_t;
+using std::uint8_t;
 
 Vector3d triangulateFeatureNonLin(
     const Matrix3d& R,
@@ -42,25 +44,26 @@ double reprojError(
     double error_multiplier2);
 
 double computeInliers(
-    const vector<Vector3d>& features1,
-    const vector<Vector3d>& features2,
-    const Matrix3d& R,
-    const Vector3d& t,
+    const std::vector<Vector3d, aligned_allocator<Vector3d> >& features1, ///< c1
+    const std::vector<Vector3d, aligned_allocator<Vector3d> >& features2, ///< c2
+    const Matrix3d& R, ///< R_c1_c2
+    const Vector3d& t, ///< c1_t
     const double reproj_thresh,
     double error_multiplier2,
-    vector<Vector3d>& xyz_vec,
-    vector<int>& inliers,
-    vector<int>& outliers);
+    std::vector<Vector3d, aligned_allocator<Vector3d> >& xyz_vec, ///< in frame c1
+    std::vector<int>& inliers,
+    std::vector<int>& outliers
+);
 
 void computeInliersOneView(
-    const vector<Vector3d> & feature_sphere_vec,
-    const vector<Vector3d> & xyz_vec,
+    const std::vector<Vector3d, aligned_allocator<Vector3d> >& feature_sphere_vec,
+    const std::vector<Vector3d, aligned_allocator<Vector3d> >& xyz_vec,
     const Matrix3d &R,
     const Vector3d &t,
     const double reproj_thresh,
     const double error_multiplier2,
-    vector<int>& inliers,
-    vector<int>& outliers);
+    std::vector<int>& inliers,
+    std::vector<int>& outliers);
 
 //! Direct Cosine Matrix to Roll Pitch Yaw
 Vector3d dcm2rpy(const Matrix3d &R);
@@ -88,12 +91,48 @@ inline Matrix3d sqew(const Vector3d& v)
   return v_sqew;
 }
 
+/// From GTSAM
+inline Matrix3d rightJacobianExpMapSO3(const Vector3d& x)
+{
+  // x is the axis-angle representation (exponential coordinates) for a rotation
+  const double normx = x.norm(); // rotation angle
+  Matrix3d Jr;
+  if (normx < 10e-8){
+    Jr = Matrix3d::Identity();
+  }
+  else{
+    const Matrix3d X = vk::sqew(x); // element of Lie algebra so(3): X = x^
+    Jr = Matrix3d::Identity() - ((1-cos(normx))/(normx*normx)) * X +
+        ((normx-sin(normx))/(normx*normx*normx)) * X * X; // right Jacobian
+  }
+  return Jr;
+}
+
+/// From GTSAM
+inline Matrix3d rightJacobianExpMapSO3inverse(const Vector3d& x)
+{
+  // x is the axis-angle representation (exponential coordinates) for a rotation
+  const double normx = x.norm(); // rotation angle
+  Matrix3d Jrinv;
+  if (normx < 10e-8)
+  {
+    Jrinv = Matrix3d::Identity();
+  }
+  else
+  {
+    const Matrix3d X = vk::sqew(x); // element of Lie algebra so(3): X = x^
+    Jrinv = Matrix3d::Identity() +
+        0.5 * X + (1/(normx*normx) - (1+cos(normx))/(2*normx * sin(normx))   ) * X * X;
+  }
+  return Jrinv;
+}
+
 inline double norm_max(const Eigen::VectorXd & v)
 {
   double max = -1;
   for (int i=0; i<v.size(); i++)
   {
-    double abs = fabs(v[i]);
+    double abs = std::fabs(v[i]);
     if(abs>max){
       max = abs;
     }
@@ -122,11 +161,11 @@ inline Vector4d unproject3d(const Vector3d& v)
 }
 
 template<class T>
-T getMedian(vector<T>& data_vec)
+T getMedian(std::vector<T>& data_vec)
 {
   assert(!data_vec.empty());
-  typename vector<T>::iterator it = data_vec.begin()+floor(data_vec.size()/2);
-  nth_element(data_vec.begin(), it, data_vec.end());
+  typename std::vector<T>::iterator it = data_vec.begin()+floor(data_vec.size()/2);
+  std::nth_element(data_vec.begin(), it, data_vec.end());
   return *it;
 }
 
@@ -141,31 +180,47 @@ inline Vector2d pyrFromZero_2d(const Vector2d& uv_0, int level)
                   pyrFromZero_d(uv_0[1], level));
 }
 
-inline void
-frameJac_xyz2uv(const Vector3d & xyz,
-                 const double & focal_length,
-                 Matrix<double,2,6> & frame_jac)
+/// Frame jacobian for projection of 3D point in (f)rame coordinate to
+/// unit plane coordinates uv (focal length = 1).
+inline void jacobianFrame_xyz2uv(
+    const Vector3d& xyz_in_f,
+    Matrix<double,2,6>& J)
 {
-  const double x = xyz[0];
-  const double y = xyz[1];
-  const double z = xyz[2];
-  const double z_2 = z*z;
+  const double x = xyz_in_f[0];
+  const double y = xyz_in_f[1];
+  const double z_inv = 1./xyz_in_f[2];
+  const double z_inv_2 = z_inv*z_inv;
+  J(0,0) = -z_inv;              // -1/z
+  J(0,1) = 0.0;                 // 0
+  J(0,2) = x*z_inv_2;           // x/z^2
+  J(0,3) = y*J(0,2);            // x*y/z^2
+  J(0,4) = -(1.0 + x*J(0,2));   // -(1.0 + x^2/z^2)
+  J(0,5) = y*z_inv;             // y/z
+  J(1,0) = 0.0;                 // 0
+  J(1,1) = -z_inv;              // -1/z
+  J(1,2) = y*z_inv_2;           // y/z^2
+  J(1,3) = 1.0 + y*J(1,2);      // 1.0 + y^2/z^2
+  J(1,4) = -J(0,3);             // -x*y/z^2
+  J(1,5) = -x*z_inv;            // x/z
+}
 
-  frame_jac(0,0) = -1./z *focal_length;
-  frame_jac(0,1) = 0;
-  frame_jac(0,2) = x/z_2 *focal_length;
-  frame_jac(0,3) =  x*y/z_2 * focal_length;
-  frame_jac(0,4) = -(1+(x*x/z_2)) *focal_length;
-  frame_jac(0,5) = y/z *focal_length;
-
-  frame_jac(1,0) = 0;
-  frame_jac(1,1) = -1./z *focal_length;
-  frame_jac(1,2) = y/z_2 *focal_length;
-  frame_jac(1,3) = (1+y*y/z_2) *focal_length;
-  frame_jac(1,4) = -x*y/z_2 *focal_length;
-  frame_jac(1,5) = -x/z *focal_length;
+/// Jacobian of point projection on unit plane (focal length = 1) in frame (f).
+inline void jacobianPoint_xyz2uv(
+    const Vector3d& p_in_f,
+    const Matrix3d& R_f_w,
+    Matrix<double,2,3>& J)
+{
+  const double z_inv = 1.0/p_in_f[2];
+  const double z_inv_sq = z_inv*z_inv;
+  J(0,0) = z_inv;
+  J(0,1) = 0.0;
+  J(0,2) = -p_in_f[0] * z_inv_sq;
+  J(1,0) = 0.0;
+  J(1,1) = z_inv;
+  J(1,2) = -p_in_f[1] * z_inv_sq;
+  J = - J * R_f_w;
 }
 
 } // end namespace vk
 
-#endif /* MATH_UTILS_H_ */
+#endif // VIKIT_MATH_UTILS_H_
