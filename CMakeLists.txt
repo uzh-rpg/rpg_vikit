@@ -54,3 +54,5 @@ include_3rdparty(sophus)
 find_boost()
 find_eigen3()
 find_opencv()
+
+disable_warnings()
