@@ -9,11 +9,11 @@
 
 namespace vk {
 
-using namespace Eigen;
-
-Vector3d
-triangulateFeatureNonLin(const Matrix3d& R,  const Vector3d& t,
-                         const Vector3d& feature1, const Vector3d& feature2 )
+Vector3d triangulateFeatureNonLin(
+        const Matrix3d& R,
+        const Vector3d& t,
+        const Vector3d& feature1,
+        const Vector3d& feature2 )
 {
   Vector3d f2 = R * feature2;
   Vector2d b;
@@ -30,14 +30,13 @@ triangulateFeatureNonLin(const Matrix3d& R,  const Vector3d& t,
   return ( xm + xn )/2;
 }
 
-bool
-depthFromTriangulationExact(
-    const Matrix3d& R_r_c,
-    const Vector3d& t_r_c,
-    const Vector3d& f_r,
-    const Vector3d& f_c,
-    double& depth_in_r,
-    double& depth_in_c)
+bool depthFromTriangulationExact(
+        const Matrix3d& R_r_c,
+        const Vector3d& t_r_c,
+        const Vector3d& f_r,
+        const Vector3d& f_c,
+        double& depth_in_r,
+        double& depth_in_c)
 {
   // bearing vectors (f_r, f_c) do not need to be unit length
   const Vector3d f_c_in_r(R_r_c*f_c);
@@ -45,44 +44,43 @@ depthFromTriangulationExact(
   const double b = f_c_in_r.dot(t_r_c);
   const double denom = (a*b - f_c_in_r.dot(f_c_in_r));
 
-  if(abs(denom) < 0.000001)
+  if(std::fabs(denom) < 0.000001)
     return false;
-
   depth_in_c = (b-a*t_r_c.dot(t_r_c)) / denom;
   depth_in_r = (t_r_c + f_c_in_r*depth_in_c).norm();
   return true;
 }
 
-double
-reprojError(const Vector3d& f1,
-            const Vector3d& f2,
-            double error_multiplier2)
+double reprojError(
+        const Vector3d& f1,
+        const Vector3d& f2,
+        double error_multiplier2)
 {
   Vector2d e = project2d(f1) - project2d(f2);
   return error_multiplier2 * e.norm();
 }
 
-double
-computeInliers(const vector<Vector3d>& features1, // c1
-               const vector<Vector3d>& features2, // c2
-               const Matrix3d& R,                 // R_c1_c2
-               const Vector3d& t,                 // c1_t
-               const double reproj_thresh,
-               double error_multiplier2,
-               vector<Vector3d>& xyz_vec,         // in frame c1
-               vector<int>& inliers,
-               vector<int>& outliers)
+double computeInliers(
+        const std::vector<Vector3d, aligned_allocator<Vector3d> >& features1,
+        const std::vector<Vector3d, aligned_allocator<Vector3d> >& features2,
+        const Matrix3d& R_12,
+        const Vector3d& t,
+        const double reproj_thresh,
+        double error_multiplier2,
+        std::vector<Vector3d, aligned_allocator<Vector3d> >& xyz_vec_in_1,
+        std::vector<int>& inliers,
+        std::vector<int>& outliers)
 {
   inliers.clear(); inliers.reserve(features1.size());
   outliers.clear(); outliers.reserve(features1.size());
-  xyz_vec.clear(); xyz_vec.reserve(features1.size());
+  xyz_vec_in_1.clear(); xyz_vec_in_1.reserve(features1.size());
   double tot_error = 0;
   //triangulate all features and compute reprojection errors and inliers
   for(size_t j=0; j<features1.size(); ++j)
   {
-    xyz_vec.push_back(triangulateFeatureNonLin(R, t, features1[j], features2[j] ));
-    double e1 = reprojError(features1[j], xyz_vec.back(), error_multiplier2);
-    double e2 = reprojError(features2[j], R.transpose()*(xyz_vec.back()-t), error_multiplier2);
+    xyz_vec_in_1.push_back(triangulateFeatureNonLin(R_12, t, features1[j], features2[j] ));
+    double e1 = reprojError(features1[j], xyz_vec_in_1.back(), error_multiplier2);
+    double e2 = reprojError(features2[j], R_12.transpose()*(xyz_vec_in_1.back()-t), error_multiplier2);
     if(e1 > reproj_thresh || e2 > reproj_thresh)
       outliers.push_back(j);
     else
@@ -94,15 +92,15 @@ computeInliers(const vector<Vector3d>& features1, // c1
   return tot_error;
 }
 
-void
-computeInliersOneView(const vector<Vector3d> & feature_sphere_vec,
-                      const vector<Vector3d> & xyz_vec,
-                      const Matrix3d &R,
-                      const Vector3d &t,
-                      const double reproj_thresh,
-                      const double error_multiplier2,
-                      vector<int>& inliers,
-                      vector<int>& outliers)
+void computeInliersOneView(
+        const std::vector<Vector3d, aligned_allocator<Vector3d> > & feature_sphere_vec,
+        const std::vector<Vector3d, aligned_allocator<Vector3d> > & xyz_vec,
+        const Matrix3d &R,
+        const Vector3d &t,
+        const double reproj_thresh,
+        const double error_multiplier2,
+        std::vector<int>& inliers,
+        std::vector<int>& outliers)
 {
   inliers.clear(); inliers.reserve(xyz_vec.size());
   outliers.clear(); outliers.reserve(xyz_vec.size());
@@ -118,19 +116,18 @@ computeInliersOneView(const vector<Vector3d> & feature_sphere_vec,
   }
 }
 
-Vector3d
-dcm2rpy(const Matrix3d &R)
+Vector3d dcm2rpy(const Matrix3d &R)
 {
   Vector3d rpy;
   rpy[1] = atan2( -R(2,0), sqrt( pow( R(0,0), 2 ) + pow( R(1,0), 2 ) ) );
-  if( fabs( rpy[1] - M_PI/2 ) < 0.00001 )
+  if( std::fabs( rpy[1] - M_PI/2 ) < 0.00001 )
   {
     rpy[2] = 0;
     rpy[0] = -atan2( R(0,1), R(1,1) );
   }
   else
   {
-    if( fabs( rpy[1] + M_PI/2 ) < 0.00001 )
+    if( std::fabs( rpy[1] + M_PI/2 ) < 0.00001 )
     {
       rpy[2] = 0;
       rpy[0] = -atan2( R(0,1), R(1,1) );
@@ -144,8 +141,7 @@ dcm2rpy(const Matrix3d &R)
   return rpy;
 }
 
-Matrix3d
-rpy2dcm(const Vector3d &rpy)
+Matrix3d rpy2dcm(const Vector3d &rpy)
 {
   Matrix3d R1;
   R1(0,0) = 1.0; R1(0,1) = 0.0; R1(0,2) = 0.0;
@@ -165,8 +161,7 @@ rpy2dcm(const Vector3d &rpy)
   return R3 * R2 * R1;
 }
 
-Quaterniond
-angax2quat(const Vector3d& n, const double& angle)
+Quaterniond angax2quat(const Vector3d& n, const double& angle)
 {
   // n must be normalized!
   double s(sin(angle/2));
@@ -174,16 +169,14 @@ angax2quat(const Vector3d& n, const double& angle)
 }
 
 
-Matrix3d
-angax2dcm(const Vector3d& n, const double& angle)
+Matrix3d angax2dcm(const Vector3d& n, const double& angle)
 {
   // n must be normalized
   Matrix3d sqewn(sqew(n));
   return Matrix3d(Matrix3d::Identity() + sqewn*sin(angle) + sqewn*sqewn*(1-cos(angle)));
 }
 
-double
-sampsonusError(const Vector2d &v2Dash, const Matrix3d& Essential, const Vector2d& v2)
+double sampsonusError(const Vector2d &v2Dash, const Matrix3d& Essential, const Vector2d& v2)
 {
   Vector3d v3Dash = unproject2d(v2Dash);
   Vector3d v3 = unproject2d(v2);
