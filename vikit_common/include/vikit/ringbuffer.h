@@ -20,12 +20,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#ifndef VISIONTOOLS_RING_BUFFER_H
-#define VISIONTOOLS_RING_BUFFER_H
+#ifndef VIKIT_RING_BUFFER_H
+#define VIKIT_RING_BUFFER_H
 
 #include <vector>
 #include <cassert>
 #include <numeric>
+#include <algorithm>
 
 namespace vk
 {
@@ -34,27 +35,17 @@ template<typename T>
 class RingBuffer
 {
 public:
-  RingBuffer                 (int size);
+  RingBuffer(int size);
+  ~RingBuffer() {}
 
-  void
-  push_back                  (const T & elem);
-
-  bool
-  empty                      () const;
-
-  T
-  get                        (int i);
-
-  T
-  getSum                     () const;
-
-  T
-  getMean                    () const;
-
-  int size()
-  {
-    return num_elem_;
-  }
+  void push_back(const T & elem);
+  bool empty() const;
+  void clear();
+  T get(int i);
+  T getSum() const;
+  T getMean() const;
+  T getMedian();
+  int size() const { return num_elem_; }
 
 private:
   std::vector<T> arr_;
@@ -65,8 +56,7 @@ private:
 };
 
 template <class T>
-RingBuffer<T>
-::RingBuffer(int size) :
+RingBuffer<T>::RingBuffer(int size) :
     arr_(size),
     begin_(0),
     end_(-1),
@@ -75,15 +65,21 @@ RingBuffer<T>
 {}
 
 template <class T>
-bool RingBuffer<T>
-::empty() const
+bool RingBuffer<T>::empty() const
 {
-  return arr_.empty();
+  return (num_elem_ == 0);
 }
 
 template <class T>
-void RingBuffer<T>
-::push_back(const T & elem)
+void RingBuffer<T>::clear()
+{
+  begin_ = 0;
+  end_ = -1;
+  num_elem_ = 0;
+}
+
+template <class T>
+void RingBuffer<T>::push_back(const T & elem)
 {
   if (num_elem_<arr_size_)
   {
@@ -99,16 +95,14 @@ void RingBuffer<T>
 }
 
 template <class T>
-T RingBuffer<T>
-::get(int i)
+T RingBuffer<T>::get(int i)
 {
   assert(i<num_elem_);
   return arr_[(begin_+i)%arr_size_];
 }
 
 template <class T>
-T RingBuffer<T>
-::getSum() const
+T RingBuffer<T>::getSum() const
 {
   T sum=0;
   for(int i=0; i<num_elem_; ++i)
@@ -117,14 +111,23 @@ T RingBuffer<T>
 }
 
 template <class T>
-T RingBuffer<T>
-::getMean() const
+T RingBuffer<T>::getMean() const
 {
   if(num_elem_ == 0)
     return 0;
   return getSum()/num_elem_;
 }
 
+template <class T>
+T RingBuffer<T>::getMedian()
+{
+  if(num_elem_ == 0)
+    return 0;
+  typename std::vector<T>::iterator it = arr_.begin()+std::floor(num_elem_/2);
+  std::nth_element(arr_.begin(), it, arr_.end());
+  return *it;
 }
 
-#endif
+} // end namespace vk
+
+#endif // VIKIT_RING_BUFFER_H

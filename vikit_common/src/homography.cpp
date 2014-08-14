@@ -257,7 +257,7 @@ void Homography::findBestDecomposition()
     for(size_t i=0; i<2; i++)
     {
       Sophus::SE3 T = decompositions[i].T;
-      Matrix3d Essential = T.rotation_matrix() * sqew(T.translation());
+      Matrix3d Essential = T.rotation_matrix() * skew(T.translation());
       double dSumError = 0;
       for(size_t m=0; m < fts_c1.size(); m++ )
       {

@@ -41,6 +41,7 @@ void testZMSSD(cv::Mat& img)
   uint8_t* ref_patch = vk::aligned_mem::aligned_alloc<uint8_t>(g_patch_size*g_patch_size, 16);
   uint8_t* cur_patch = vk::aligned_mem::aligned_alloc<uint8_t>(g_patch_size*g_patch_size, 16);
 
+
   vk::Timer t;
   for(int i=0; i<1000000; ++i)
   {
@@ -58,25 +59,29 @@ void testZMSSD(cv::Mat& img)
   printf("Copy patch cost %f\n", t.stop());
 
   // compute patch score
-  t.start();
-  int b=10;
-  for(int i=0; i<1000000; ++i)
   {
+    t.start();
+    int b=10;
     PatchScore patch_score(ref_patch);
-    b += patch_score.computeScore(cur_patch);
+    for(int i=0; i<1000000; ++i)
+    {
+      b += patch_score.computeScore(cur_patch);
+    }
+    printf("Compute cost cost %f, %i\n", t.stop(), b);
   }
-  printf("Compute cost cost %f, %i\n", t.stop(), b);
 
   // compute patch score
-  t.start();
-  int c=10;
   uint8_t* data_ptr = img.data + (y-g_halfpatch_size)*img.cols + (x-g_halfpatch_size);
-  for(int i=0; i<1000000; ++i)
   {
+    t.start();
+    int c=10;
     PatchScore patch_score(ref_patch);
-    c += patch_score.computeScore(data_ptr, img.cols);
+    for(int i=0; i<1000000; ++i)
+    {
+      c += patch_score.computeScore(data_ptr, img.cols);
+    }
+    printf("Compute cost, stride %f, %i\n", t.stop(), c);
   }
-  printf("Compute cost, stride %f, %i\n", t.stop(), c);
 
   // check results
   {
