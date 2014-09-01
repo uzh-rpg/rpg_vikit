@@ -8,6 +8,7 @@
 #ifndef VIKIT_CAMERA_LOADER_H_
 #define VIKIT_CAMERA_LOADER_H_
 
+#include <memory>
 #include <string>
 #include <vikit/abstract_camera.h>
 #include <vikit/pinhole_camera.h>
@@ -19,17 +20,17 @@ namespace vk {
 namespace camera_loader {
 
 /// Load from ROS Namespace
-bool loadFromRosNs(const std::string& ns, vk::AbstractCamera*& cam)
+std::shared_ptr<vk::AbstractCamera> loadFromRosNs(const std::string& ns)
 {
-  bool res = true;
+  std::shared_ptr<vk::AbstractCamera> cam;
   std::string cam_model(getParam<std::string>(ns+"/cam_model"));
   if(cam_model == "Ocam")
   {
-    cam = new vk::OmniCamera(getParam<std::string>(ns+"/cam_calib_file", ""));
+    cam = std::make_shared<vk::OmniCamera>(getParam<std::string>(ns+"/cam_calib_file", ""));
   }
   else if(cam_model == "Pinhole")
   {
-    cam = new vk::PinholeCamera(
+    cam = std::make_shared<vk::PinholeCamera>(
         getParam<int>(ns+"/cam_width"),
         getParam<int>(ns+"/cam_height"),
         getParam<double>(ns+"/cam_fx"),
@@ -43,7 +44,7 @@ bool loadFromRosNs(const std::string& ns, vk::AbstractCamera*& cam)
   }
   else if(cam_model == "ATAN")
   {
-    cam = new vk::ATANCamera(
+    cam = std::make_shared<vk::ATANCamera>(
         getParam<int>(ns+"/cam_width"),
         getParam<int>(ns+"/cam_height"),
         getParam<double>(ns+"/cam_fx"),
@@ -52,12 +53,7 @@ bool loadFromRosNs(const std::string& ns, vk::AbstractCamera*& cam)
         getParam<double>(ns+"/cam_cy"),
         getParam<double>(ns+"/cam_d0"));
   }
-  else
-  {
-    cam = NULL;
-    res = false;
-  }
-  return res;
+  return cam;
 }
 
 } // namespace camera_loader

@@ -95,14 +95,17 @@ IF(USE_ROS)
 ENDIF()
 
 # Tests
-ADD_EXECUTABLE(test_vk_common_camera test/test_camera.cpp)
-TARGET_LINK_LIBRARIES(test_vk_common_camera ${PROJECT_NAME})
+ADD_EXECUTABLE(vikit_test_timer test/test_timer.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_timer ${PROJECT_NAME})
 
-ADD_EXECUTABLE(test_vk_common_triangulation test/test_triangulation.cpp)
-TARGET_LINK_LIBRARIES(test_vk_common_triangulation ${PROJECT_NAME})
+ADD_EXECUTABLE(vikit_test_camera test/test_camera.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_camera ${PROJECT_NAME})
 
-ADD_EXECUTABLE(test_vk_common_patch_score test/test_patch_score.cpp)
-TARGET_LINK_LIBRARIES(test_vk_common_patch_score ${PROJECT_NAME})
+ADD_EXECUTABLE(vikit_test_triangulation test/test_triangulation.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_triangulation ${PROJECT_NAME})
+
+ADD_EXECUTABLE(vikit_test_patch_score test/test_patch_score.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_patch_score ${PROJECT_NAME})
 
 
 ################################################################################

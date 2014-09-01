@@ -1,81 +1,108 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef VIKIT_TIMER_H
+#define VIKIT_TIMER_H
 
-#include <sys/time.h>
-#include <stdio.h>
-#include <unistd.h>
+#include <chrono>
+#include <string>
+#include <sstream>
+#include <iomanip> // std::setw
+#include <ctime>   // std::localtime,
 
 namespace vk
 {
 
 class Timer
 {
-private:
-  timeval start_time_;
-  double time_;
-  double accumulated_;
 public:
+  typedef std::chrono::high_resolution_clock Clock;
+  typedef std::chrono::time_point<Clock> TimePoint;
+  typedef std::chrono::nanoseconds Nanoseconds;
+  typedef std::chrono::seconds Seconds;
 
   /// The constructor directly starts the timer.
-  Timer() :
-    time_(0.0),
-    accumulated_(0.0)
-  {
-    start();
-  }
-
-  ~Timer()
+  Timer()
+    : start_time_(Clock::now())
+    , duration_(Nanoseconds::zero())
+    , accumulated_(Nanoseconds::zero())
   {}
 
+  /// Starts the timer
   inline void start()
   {
-    accumulated_ = 0.0;
-    gettimeofday(&start_time_, NULL);
+    start_time_ = Clock::now();
   }
 
+  /// Resumes the timer. Total time can be obtained with getAccumulated().
   inline void resume()
   {
-    gettimeofday(&start_time_, NULL);
+    start_time_ = Clock::now();
   }
 
+  /// Returns duration in seconds
   inline double stop()
   {
-    timeval end_time;
-    gettimeofday(&end_time, NULL);
-    long seconds  = end_time.tv_sec  - start_time_.tv_sec;
-    long useconds = end_time.tv_usec - start_time_.tv_usec;
-    time_ = ((seconds) + useconds*0.000001) + accumulated_;
-    accumulated_ = time_;
-    return time_;
+    const TimePoint end_time(Clock::now());
+    duration_ = std::chrono::duration_cast<Nanoseconds>(end_time - start_time_);
+    accumulated_ += duration_;
+    return static_cast<double>(duration_.count())*1e-9;
   }
 
+  /// Returns duration of last measurement in seconds
   inline double getTime() const
   {
-    return time_;
+    return static_cast<double>(duration_.count())*1e-9;
   }
 
+  /// Returns duration of last measurement in milliseconds
+  inline double getMilliseconds() const
+  {
+    return static_cast<double>(duration_.count())*1e-6;
+  }
+
+  /// Returns duration since the last reset or construction of the timer
+  inline double getAccumulated() const
+  {
+    return static_cast<double>(accumulated_.count())*1e-9;
+  }
+
+  /// Reset the current timer and the accumulated
   inline void reset()
   {
-    time_ = 0.0;
-    accumulated_ = 0.0;
+    start_time_ = TimePoint();
+    duration_ = Nanoseconds::zero();
+    accumulated_ = Nanoseconds::zero();
   }
 
+  /// Get seconds since 1.1.1970
   static double getCurrentTime()
   {
-    timeval time_now;
-    gettimeofday(&time_now, NULL);
-    return time_now.tv_sec + time_now.tv_usec*0.000001;
+    return static_cast<double>(
+          std::chrono::duration_cast<Nanoseconds>(Clock::now()-TimePoint())
+          .count())*1e-9;
   }
 
-  static double getCurrentSecond()
+  /// Get a formated string of the current time, hour, minute and second
+  static std::string getCurrentTimeStr()
   {
-    timeval time_now;
-    gettimeofday(&time_now, NULL);
-    return time_now.tv_sec;
+    std::time_t now = std::chrono::system_clock::to_time_t(Clock::now());
+    std::tm* t = std::localtime(&now);
+    if(t == NULL)
+      return std::string("ERROR");
+    std::ostringstream ss;
+    ss << t->tm_year-100 << "-"
+       << std::setw(2) << std::setfill('0') << t->tm_mon+1 << "-"
+       << std::setw(2) << std::setfill('0') << t->tm_mday << "_"
+       << std::setw(2) << std::setfill('0') << t->tm_hour << "-"
+       << std::setw(2) << std::setfill('0') << t->tm_min << "-"
+       << std::setw(2) << std::setfill('0') << t->tm_sec;
+    return ss.str();
   }
 
+private:
+  TimePoint start_time_;
+  Nanoseconds duration_;
+  Nanoseconds accumulated_;
 };
 
 } // end namespace vk
 
-#endif
+#endif // VIKIT_TIMER_H

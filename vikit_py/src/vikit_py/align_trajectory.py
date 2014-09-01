@@ -36,7 +36,7 @@ def align_sim3(model, data):
     S = np.eye(3)
 
     if(np.linalg.det(U_svd)*np.linalg.det(V_svd) < 0):
-        I, S[2,2] = -1
+        S[2,2] = -1
 
     R = np.dot(U_svd, np.dot(S, np.transpose(V_svd)))
     s = 1.0/sigma2*np.trace(np.dot(D_svd, S))
