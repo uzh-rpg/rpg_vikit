@@ -83,7 +83,7 @@ public:
   /// Get a formated string of the current time, hour, minute and second
   static std::string getCurrentTimeStr()
   {
-    std::time_t now = std::chrono::system_clock::to_time_t(Clock::now());
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::tm* t = std::localtime(&now);
     if(t == NULL)
       return std::string("ERROR");
