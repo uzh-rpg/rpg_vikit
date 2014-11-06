@@ -96,11 +96,11 @@ halfSample(const cv::Mat& in, cv::Mat& out)
   uint8_t* bottom = top + in_stride;
   uint8_t* end = top + in_stride*in.rows;
   uint8_t* p = (uint8_t*) out.data;
-  for (int y=0; y < out.rows && bottom < end; y++, top += in_stride, bottom += in_stride, p += out_stride)
+  for (int y=0; y < out.rows && bottom < end; y++, top += in_stride*2, bottom += in_stride*2, p += out_stride)
   {
-    for (int x=0; x < out.cols; x++, top +=2, bottom += 2)
+    for (int x=0; x < out.cols; x++)
     {
-       p[x] = static_cast<uint8_t>( (uint16_t (top[0]) + top[1] + bottom[0] + bottom[1])/4 );
+       p[x] = static_cast<uint8_t>( (uint16_t (top[x*2]) + top[x*2+1] + bottom[x*2] + bottom[x*2+1])/4 );
     }
   }
 }
