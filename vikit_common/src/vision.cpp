@@ -75,6 +75,8 @@ halfSample(const cv::Mat& in, cv::Mat& out)
   assert( in.rows/2==out.rows && in.cols/2==out.cols);
   assert( in.type()==CV_8U && out.type()==CV_8U);
 
+  /*
+   seems not to work
 #ifdef __SSE2__
   if(aligned_mem::is_aligned16(in.data) && aligned_mem::is_aligned16(out.data) && ((in.cols % 16) == 0))
   {
@@ -82,6 +84,8 @@ halfSample(const cv::Mat& in, cv::Mat& out)
     return;
   }
 #endif
+  */
+
 #ifdef __ARM_NEON__ 
   if( (in.cols % 16) == 0 )
   {
