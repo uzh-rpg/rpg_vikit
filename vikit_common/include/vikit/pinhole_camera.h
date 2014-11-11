@@ -12,7 +12,7 @@
 #include <string>
 #include <Eigen/Eigen>
 #include <vikit/abstract_camera.h>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
 
 namespace vk {
 

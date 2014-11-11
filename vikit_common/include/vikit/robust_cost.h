@@ -41,7 +41,7 @@ class UnitScaleEstimator : public ScaleEstimator
 public:
   UnitScaleEstimator() {}
   virtual ~UnitScaleEstimator() {}
-  virtual float compute(std::vector<float>& errors) const { return 1.0f; };
+  virtual float compute(std::vector<float>& /*errors*/) const { return 1.0f; };
 };
 
 // estimates scale by fitting a t-distribution to the data with the given degrees of freedom
@@ -93,7 +93,7 @@ class WeightFunction
 public:
   virtual ~WeightFunction() {};
   virtual float value(const float& x) const = 0;
-  virtual void configure(const float& param) {};
+  virtual void configure(const float& /*param*/) {};
 };
 typedef std::shared_ptr<WeightFunction> WeightFunctionPtr;
 
@@ -102,7 +102,7 @@ class UnitWeightFunction : public WeightFunction
 public:
   UnitWeightFunction() {};
   virtual ~UnitWeightFunction() {};
-  virtual float value(const float& x) const { return 1.0f; };
+  virtual float value(const float& /*x*/) const { return 1.0f; };
 };
 
 /**

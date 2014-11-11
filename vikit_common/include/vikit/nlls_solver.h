@@ -74,7 +74,7 @@ protected:
   update                (const ModelType& old_model, ModelType& new_model) = 0;
 
   virtual void
-  applyPrior            (const ModelType& current_model) { }
+  applyPrior            (const ModelType& /*current_model*/) { }
 
   virtual void
   startIteration        () { }
@@ -99,6 +99,7 @@ public:
   size_t                n_trials_max_;          //!< Max number of trials
   size_t                n_meas_;                //!< Number of measurements
   bool                  stop_;                  //!< Stop flag
+  bool                  stop_when_error_increases_;
   bool                  verbose_;               //!< Output Statistics
   double                eps_;                   //!< Stop if update norm is smaller than eps
   size_t                iter_;                  //!< Current Iteration
@@ -122,6 +123,7 @@ public:
     n_trials_max_(5),
     n_meas_(0),
     stop_(false),
+    stop_when_error_increases_(true),
     verbose_(true),
     eps_(0.0000000001),
     iter_(0),

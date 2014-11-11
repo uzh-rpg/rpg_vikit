@@ -10,34 +10,35 @@
  */
 
 #include <vikit/homography.h>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 #include <stdio.h>
 
 namespace vk {
 
-Homography::
-Homography(const vector<Vector2d, aligned_allocator<Vector2d> >& _fts1,
-           const vector<Vector2d, aligned_allocator<Vector2d> >& _fts2,
-           double _error_multiplier2,
-           double _thresh_in_px) :
-   thresh(_thresh_in_px),
-   error_multiplier2(_error_multiplier2),
-   fts_c1(_fts1),
-   fts_c2(_fts2)
-{
-}
+Homography::Homography(
+        const std::vector<Vector2d, aligned_allocator<Vector2d> >& _fts1,
+        const std::vector<Vector2d, aligned_allocator<Vector2d> >& _fts2,
+        double _error_multiplier2,
+        double _thresh_in_px)
+    : thresh(_thresh_in_px)
+    , error_multiplier2(_error_multiplier2)
+    , fts_c1(_fts1)
+    , fts_c2(_fts2)
+{}
 
-void Homography::
-calcFromPlaneParams(const Vector3d& n_c1, const Vector3d& xyz_c1)
+void Homography::calcFromPlaneParams(
+        const Vector3d& n_c1,
+        const Vector3d& xyz_c1)
 {
   double d = n_c1.dot(xyz_c1); // normal distance from plane to KF
   H_c2_from_c1 = T_c2_from_c1.rotation_matrix() + (T_c2_from_c1.translation()*n_c1.transpose())/d;
 }
 
-void Homography::
-calcFromMatches()
+void Homography::calcFromMatches()
 {
-  vector<cv::Point2f> src_pts(fts_c1.size()), dst_pts(fts_c1.size());
+  std::vector<cv::Point2f> src_pts(fts_c1.size()), dst_pts(fts_c1.size());
   for(size_t i=0; i<fts_c1.size(); ++i)
   {
     src_pts[i] = cv::Point2f(fts_c1[i][0], fts_c1[i][1]);
@@ -57,8 +58,7 @@ calcFromMatches()
   H_c2_from_c1(2,2) = cvH.at<double>(2,2);
 }
 
-size_t Homography::
-computeMatchesInliers()
+size_t Homography::computeMatchesInliers()
 {
   inliers.clear(); inliers.resize(fts_c1.size());
   size_t n_inliers = 0;
@@ -74,8 +74,7 @@ computeMatchesInliers()
 
 }
 
-bool Homography::
-computeSE3fromMatches()
+bool Homography::computeSE3fromMatches()
 {
   calcFromMatches();
   bool res = decompose();
@@ -87,17 +86,16 @@ computeSE3fromMatches()
   return true;
 }
 
-bool Homography::
-decompose()
+bool Homography::decompose()
 {
   decompositions.clear();
   JacobiSVD<MatrixXd> svd(H_c2_from_c1, ComputeThinU | ComputeThinV);
 
   Vector3d singular_values = svd.singularValues();
 
-  double d1 = fabs(singular_values[0]); // The paper suggests the square of these (e.g. the evalues of AAT)
-  double d2 = fabs(singular_values[1]); // should be used, but this is wrong. c.f. Faugeras' book.
-  double d3 = fabs(singular_values[2]);
+  double d1 = std::fabs(singular_values[0]); // The paper suggests the square of these (e.g. the evalues of AAT)
+  double d2 = std::fabs(singular_values[1]); // should be used, but this is wrong. c.f. Faugeras' book.
+  double d3 = std::fabs(singular_values[2]);
 
   Matrix3d U = svd.matrixU();
   Matrix3d V = svd.matrixV();                    // VT^T
@@ -127,9 +125,9 @@ decompose()
   // All below deals with the case = 1 case.
   // Case 1 implies (d1 != d3)
   { // Eq. 12
-    x1_PM = sqrt((d1*d1 - d2*d2) / (d1*d1 - d3*d3));
+    x1_PM = std::sqrt((d1*d1 - d2*d2) / (d1*d1 - d3*d3));
     x2    = 0;
-    x3_PM = sqrt((d2*d2 - d3*d3) / (d1*d1 - d3*d3));
+    x3_PM = std::sqrt((d2*d2 - d3*d3) / (d1*d1 - d3*d3));
   };
 
   double e1[4] = {1.0,-1.0, 1.0,-1.0};
@@ -205,8 +203,7 @@ bool operator<(const HomographyDecomposition lhs, const HomographyDecomposition 
   return lhs.score < rhs.score;
 }
 
-void Homography::
-findBestDecomposition()
+void Homography::findBestDecomposition()
 {
   assert(decompositions.size() == 8);
   for(size_t i=0; i<decompositions.size(); i++)
@@ -260,7 +257,7 @@ findBestDecomposition()
     for(size_t i=0; i<2; i++)
     {
       Sophus::SE3 T = decompositions[i].T;
-      Matrix3d Essential = T.rotation_matrix() * sqew(T.translation());
+      Matrix3d Essential = T.rotation_matrix() * skew(T.translation());
       double dSumError = 0;
       for(size_t m=0; m < fts_c1.size(); m++ )
       {
@@ -280,4 +277,4 @@ findBestDecomposition()
 }
 
 
-} /* end namespace vk */
+} // namespace vk

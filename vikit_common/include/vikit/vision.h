@@ -10,7 +10,8 @@
 
 #include <vikit/aligned_mem.h>
 #include <Eigen/Core>
-#include <opencv2/opencv.hpp>
+
+#include <opencv2/core/core.hpp>
 
 namespace vk
 {
