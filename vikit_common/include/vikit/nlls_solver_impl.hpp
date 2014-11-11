@@ -59,13 +59,14 @@ void vk::NLLSSolver<D, T>::optimizeGaussNewton(ModelType& model)
     }
 
     // check if error increased since last optimization
-    if((iter_ > 0 && new_chi2 > chi2_) || stop_)
+    if((iter_ > 0 && new_chi2 > chi2_ && stop_when_error_increases_) || stop_)
     {
       if(verbose_)
       {
         std::cout << "It. " << iter_
                   << "\t Failure"
                   << "\t new_chi2 = " << new_chi2
+                  << "\t n_meas = " << n_meas_
                   << "\t Error increased. Stop optimizing."
                   << std::endl;
       }

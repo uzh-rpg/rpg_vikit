@@ -9,7 +9,7 @@ SET(USE_ROS TRUE) # Set False if you want to build this package without Catkin
 # Set build flags. Set IS_ARM on odroid board as environment variable
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
 IF(DEFINED ENV{ARM_ARCHITECTURE})
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon -march=armv7-a")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon -march=armv7")
 ELSE()
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx -msse -msse -msse2 -msse3 -mssse3")
 ENDIF()
@@ -47,20 +47,44 @@ ELSE()
   SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 ENDIF()
 
-# Set Sourcefiles
-LIST(APPEND SOURCEFILES src/atan_camera.cpp
-                        src/omni_camera.cpp
-                        src/math_utils.cpp
-                        src/vision.cpp
-                        src/performance_monitor.cpp
-                        src/robust_cost.cpp
-                        src/user_input_thread.cpp
-                        src/pinhole_camera.cpp
-                        src/homography.cpp
-                        src/img_align.cpp)
+# Set source files
+LIST(APPEND VIKIT_SOURCEFILES
+  src/atan_camera.cpp
+  src/omni_camera.cpp
+  src/math_utils.cpp
+  src/vision.cpp
+  src/performance_monitor.cpp
+  src/robust_cost.cpp
+  src/user_input_thread.cpp
+  src/pinhole_camera.cpp
+  src/homography.cpp)
+
+# Set header files
+LIST(APPEND VIKIT_HEADERFILES
+  include/vikit/abstract_camera.h
+  include/vikit/aligned_mem.h
+  include/vikit/atan_camera.h
+  include/vikit/blender_utils.h
+  include/vikit/file_reader.h
+  include/vikit/file_reader_types.h
+  include/vikit/homography.h
+  include/vikit/math_utils.h
+  include/vikit/nlls_solver.h
+  include/vikit/nlls_solver_impl.hpp
+  include/vikit/omni_camera.h
+  include/vikit/patch_score.h
+  include/vikit/performance_monitor.h
+  include/vikit/pinhole_camera.h
+  include/vikit/ringbuffer.h
+  include/vikit/robust_cost.h
+  include/vikit/sample.h
+  include/vikit/timer.h
+  include/vikit/user_input_thread.h
+  include/vikit/vision.h
+)
 
 # Create vikit library
-ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCEFILES})
+ADD_LIBRARY(${PROJECT_NAME} SHARED ${VIKIT_SOURCEFILES} ${VIKIT_HEADERFILES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
   ${OpenCV_LIBS}
   ${Sophus_LIBRARIES}
@@ -71,14 +95,17 @@ IF(USE_ROS)
 ENDIF()
 
 # Tests
-ADD_EXECUTABLE(test_vk_common_camera test/test_camera.cpp)
-TARGET_LINK_LIBRARIES(test_vk_common_camera ${PROJECT_NAME})
+ADD_EXECUTABLE(vikit_test_timer test/test_timer.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_timer ${PROJECT_NAME})
 
-ADD_EXECUTABLE(test_vk_common_triangulation test/test_triangulation.cpp)
-TARGET_LINK_LIBRARIES(test_vk_common_triangulation ${PROJECT_NAME})
+ADD_EXECUTABLE(vikit_test_camera test/test_camera.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_camera ${PROJECT_NAME})
 
-ADD_EXECUTABLE(test_vk_common_patch_score test/test_patch_score.cpp)
-TARGET_LINK_LIBRARIES(test_vk_common_patch_score ${PROJECT_NAME})
+ADD_EXECUTABLE(vikit_test_triangulation test/test_triangulation.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_triangulation ${PROJECT_NAME})
+
+ADD_EXECUTABLE(vikit_test_patch_score test/test_patch_score.cpp)
+TARGET_LINK_LIBRARIES(vikit_test_patch_score ${PROJECT_NAME})
 
 
 ################################################################################

@@ -47,11 +47,13 @@ void halfSampleSSE2(const unsigned char* in, unsigned char* out, int w, int h)
 #ifdef __ARM_NEON__
 void halfSampleNEON( const cv::Mat& in, cv::Mat& out )
 {
+  const int in_stride = in.step.p[0];
+  const int out_stride = out.step.p[0];
   for( int y = 0; y < in.rows; y += 2)
   {
-    const uint8_t * in_top = in.data + y*in.cols;
-    const uint8_t * in_bottom = in.data + (y+1)*in.cols;
-    uint8_t * out_data = out.data + (y >> 1)*out.cols;
+    const uint8_t * in_top = in.data + y*in_stride;
+    const uint8_t * in_bottom = in.data + (y+1)*in_stride;
+    uint8_t * out_data = out.data + (y >> 1)*out_stride;
     for( int x = in.cols; x > 0 ; x-=16, in_top += 16, in_bottom += 16, out_data += 8)
     {
       uint8x8x2_t top  = vld2_u8( (const uint8_t *)in_top );
@@ -73,13 +75,17 @@ halfSample(const cv::Mat& in, cv::Mat& out)
   assert( in.rows/2==out.rows && in.cols/2==out.cols);
   assert( in.type()==CV_8U && out.type()==CV_8U);
 
+  /*
+   seems not to work
 #ifdef __SSE2__
   if(aligned_mem::is_aligned16(in.data) && aligned_mem::is_aligned16(out.data) && ((in.cols % 16) == 0))
   {
     halfSampleSSE2(in.data, out.data, in.cols, in.rows);
     return;
   }
-#endif 
+#endif
+  */
+
 #ifdef __ARM_NEON__ 
   if( (in.cols % 16) == 0 )
   {
@@ -88,23 +94,18 @@ halfSample(const cv::Mat& in, cv::Mat& out)
   }
 #endif
 
-  const int stride = in.step.p[0];
+  const int in_stride = in.step.p[0];
+  const int out_stride = out.step.p[0];
   uint8_t* top = (uint8_t*) in.data;
-  uint8_t* bottom = top + stride;
-  uint8_t* end = top + stride*in.rows;
-  const int out_width = out.cols;
+  uint8_t* bottom = top + in_stride;
+  uint8_t* end = top + in_stride*in.rows;
   uint8_t* p = (uint8_t*) out.data;
-  while (bottom < end)
+  for (int y=0; y < out.rows && bottom < end; y++, top += in_stride*2, bottom += in_stride*2, p += out_stride)
   {
-    for (int j=0; j<out_width; j++)
+    for (int x=0; x < out.cols; x++)
     {
-      *p = static_cast<uint8_t>( (uint16_t (top[0]) + top[1] + bottom[0] + bottom[1])/4 );
-      p++;
-      top += 2;
-      bottom += 2;
+       p[x] = static_cast<uint8_t>( (uint16_t (top[x*2]) + top[x*2+1] + bottom[x*2] + bottom[x*2+1])/4 );
     }
-    top += stride;
-    bottom += stride;
   }
 }
 

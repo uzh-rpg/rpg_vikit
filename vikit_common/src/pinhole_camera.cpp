@@ -53,12 +53,23 @@ cam2world(const double& u, const double& v) const
   }
   else
   {
-    cv::Point2f uv(u,v), px;
-    const cv::Mat src_pt(1, 1, CV_32FC2, &uv.x);
-    cv::Mat dst_pt(1, 1, CV_32FC2, &px.x);
-    cv::undistortPoints(src_pt, dst_pt, cvK_, cvD_);
-    xyz[0] = px.x;
-    xyz[1] = px.y;
+    double x0,x,y0,y;
+
+    x0 = x = (u - cx_) / fx_;
+    y0 = y = (v - cy_) / fy_;
+
+    for(int j = 0; j < 5; j++ ) // copied from opencv/cvundistort.cpp : cv::undistortPoints()
+    {
+       double r2 = x*x + y*y;
+       double icdist = 1./(1 + ((d_[4]*r2 + d_[1])*r2 + d_[0])*r2);
+       double deltaX = 2*d_[2]*x*y + d_[3]*(r2 + 2*x*x);
+       double deltaY = d_[2]*(r2 + 2*y*y) + 2*d_[3]*x*y;
+       x = (x0 - deltaX)*icdist;
+       y = (y0 - deltaY)*icdist;
+    }
+
+    xyz[0] = x;
+    xyz[1] = y;
     xyz[2] = 1.0;
   }
   return xyz.normalized();

@@ -24,7 +24,11 @@ set(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas -Wno-unused-local-typedefs")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
 IF(IS_ARM)
+<<<<<<< HEAD
    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mfpu=neon -march=armv7-a -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
+=======
+   SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mfpu=neon -march=armv7 -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
+>>>>>>> 82548839f7ae1a54ee91acc1cf2b5f1132a54404
 ELSE()
    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -mmmx -msse -msse -msse2 -msse3 -mssse3 -fomit-frame-pointer -fsee -fno-signed-zeros -fno-math-errno -funroll-loops")
 ENDIF()
@@ -92,7 +96,10 @@ LIST(APPEND SOURCEFILES
    ${VIKIT_COMMON_RELDIR}/src/user_input_thread.cpp
    ${VIKIT_COMMON_RELDIR}/src/pinhole_camera.cpp
    ${VIKIT_COMMON_RELDIR}/src/homography.cpp
+<<<<<<< HEAD
    ${VIKIT_COMMON_RELDIR}/src/img_align.cpp
+=======
+>>>>>>> 82548839f7ae1a54ee91acc1cf2b5f1132a54404
 )
 
 LIST(APPEND HEADERS
@@ -103,7 +110,10 @@ LIST(APPEND HEADERS
    ${VIKIT_COMMON_RELDIR}/include/vikit/performance_monitor.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/file_reader.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/aligned_mem.h
+<<<<<<< HEAD
    ${VIKIT_COMMON_RELDIR}/include/vikit/img_align.h
+=======
+>>>>>>> 82548839f7ae1a54ee91acc1cf2b5f1132a54404
    ${VIKIT_COMMON_RELDIR}/include/vikit/patch_score.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/vision.h
    ${VIKIT_COMMON_RELDIR}/include/vikit/blender_utils.h
