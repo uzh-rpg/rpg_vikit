@@ -4,25 +4,25 @@ import numpy as np
 import vikit_py.transformations as transformations
 
 def align_sim3(model, data):
-  """Implementation of the paper: S. Umeyama, Least-Squares Estimation 
+  """Implementation of the paper: S. Umeyama, Least-Squares Estimation
   of Transformation Parameters Between Two Point Patterns,
   IEEE Trans. Pattern Anal. Mach. Intell., vol. 13, no. 4, 1991.
 
   Input:
   model -- first trajectory (3xn)
   data -- second trajectory (3xn)
-  
+
   Output:
   s -- scale factor (scalar)
   R -- rotation matrix (3x3)
   t -- translation vector (3x1)
   t_error -- translational error per point (1xn)
-  
+
   """
 
   # substract mean
-  mu_M = model.mean(0)
-  mu_D = data.mean(0)
+  mu_M = model.mean(0).reshape(model.shape[0],1)
+  mu_D = data.mean(0).reshape(data.shape[0],1)
   model_zerocentered = model - mu_M
   data_zerocentered = data - mu_D
   n = np.shape(model)[0]
@@ -49,23 +49,24 @@ def align_sim3(model, data):
 
   return s, R, t #, t_error
 
-def align_se3(model,data):
-    """Align two trajectories using the method of Horn (closed-form). 
-    
+def align_se3(model,data, precision = False):
+    """Align two trajectories using the method of Horn (closed-form).
+
     Input:
     model -- first trajectory (3xn)
     data -- second trajectory (3xn)
-    
+
     Output:
     R -- rotation matrix (3x3)
     t -- translation vector (3x1)
     t_error -- translational error per point (1xn)
-    
+
     """
-    np.set_printoptions(precision=3,suppress=True)
-    model_zerocentered = model - model.mean(1)
-    data_zerocentered = data - data.mean(1)
-    
+    if not precision:
+        np.set_printoptions(precision=3,suppress=True)
+    model_zerocentered = model - model.mean(1).reshape(model.shape[0],1)
+    data_zerocentered = data - data.mean(1).reshape(data.shape[0],1)
+
     W = np.zeros( (3,3) )
     for column in range(model.shape[1]):
         W += np.outer(model_zerocentered[:,column],data_zerocentered[:,column])
@@ -74,12 +75,12 @@ def align_se3(model,data):
     if(np.linalg.det(U) * np.linalg.det(Vh)<0):
         S[2,2] = -1
     R = U*S*Vh
-    t = data.mean(1) - R * model.mean(1)
-    
+    t = data.mean(1).reshape(data.shape[0],1) - R * model.mean(1).reshape(model.shape[0],1)
+
     model_aligned = R * model + t
     alignment_error = model_aligned - data
     t_error = np.sqrt(np.sum(np.multiply(alignment_error,alignment_error),0)).A[0]
-        
+
     return R, t, t_error
 
 def _matrix_log(A):
@@ -112,7 +113,7 @@ def hand_eye_calib(q_gt, q_es, p_gt, p_es, I, delta=10, verbose=True):
     b_A[3*ix:3*ix+3,0] = np.dot(np.transpose(A1), p_es[i+delta,:]-p_es[i,:])
     b_B[3*ix:3*ix+3,0] = np.dot(np.transpose(B1), p_gt[i+delta,:]-p_gt[i,:])
 
-  # compute rotation  
+  # compute rotation
   D,V = np.linalg.linalg.eig(np.dot(M.transpose(), M))
   Lambda = np.diag([np.sqrt(1.0/D[0]), np.sqrt(1.0/D[1]), np.sqrt(1.0/D[2])])
   Vinv = np.linalg.linalg.inv(V)
