@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 SVO
 ===
 
@@ -41,3 +42,11 @@ See the Wiki for more instructions. https://github.com/uzh-rpg/rpg_svo/wiki
 
 You are very welcome to contribute to SVO by opening a pull request via Github.
 I try to follow the ROS C++ style guide http://wiki.ros.org/CppStyleGuide
+=======
+VIKIT
+-----
+
+Vikit (Vision-Kit) provides some tools for your vision/robotics project.
+Far from stable.
+
+>>>>>>> ec3c974ea8b01b73f29fc4528a7928f3bd1596bd
