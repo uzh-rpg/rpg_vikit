@@ -230,6 +230,111 @@ publishHexacopterMarker(ros::Publisher pub,
   pub.publish(marker);
 }
 
+void
+publishCameraMarker(ros::Publisher pub,
+                    const string& frame_id,
+                    const string& ns,
+                    const ros::Time& timestamp,
+                    int id,
+                    double marker_scale,
+                    const Vector3d& color)
+{
+  /*
+   * draw a pyramid as the camera marker
+   */
+  const double sqrt2_2 = sqrt(2) / 2;
+
+  visualization_msgs::Marker marker;
+
+  // the marker will be displayed in frame_id
+  marker.header.frame_id = frame_id;
+  marker.header.stamp = timestamp;
+  marker.ns = ns;
+  marker.action = 0;
+  marker.id = id;
+
+  // make rectangles as frame
+  double r_w = 1.0;
+  double z_plane = (r_w / 2.0)*marker_scale;
+  marker.pose.position.x = 0;
+  marker.pose.position.y = (r_w / 4.0) *marker_scale;
+  marker.pose.position.z = z_plane;
+
+  marker.type = visualization_msgs::Marker::CUBE;
+  marker.scale.x = r_w*marker_scale;
+  marker.scale.y = 0.04*marker_scale;
+  marker.scale.z = 0.04*marker_scale;
+  marker.color.r = color[0];
+  marker.color.g = color[1];
+  marker.color.b = color[2];
+  marker.color.a = 1;
+
+  marker.pose.orientation.x = 0;
+  marker.pose.orientation.y = 0;
+  marker.pose.orientation.z = 0;
+  marker.pose.orientation.w = 1;
+  marker.id--;
+  pub.publish(marker);
+  marker.pose.position.y = -(r_w/ 4.0)*marker_scale;
+  marker.id--;
+  pub.publish(marker);
+
+  marker.scale.x = (r_w/2.0)*marker_scale;
+  marker.pose.position.x = (r_w / 2.0) *marker_scale;
+  marker.pose.position.y = 0;
+  marker.pose.orientation.w = sqrt2_2;
+  marker.pose.orientation.z = sqrt2_2;
+  marker.id--;
+  pub.publish(marker);
+  marker.pose.position.x = -(r_w / 2.0) *marker_scale;
+  marker.id--;
+  pub.publish(marker);
+
+  // make pyramid edges
+  marker.scale.x = (3.0*r_w/4.0)*marker_scale;
+  marker.pose.position.z = 0.5*z_plane;
+
+  marker.pose.position.x = (r_w / 4.0) *marker_scale;
+  marker.pose.position.y = (r_w / 8.0) *marker_scale;
+  //  0.08198092, -0.34727674,  0.21462883,  0.9091823
+  marker.pose.orientation.x = 0.08198092;
+  marker.pose.orientation.y = -0.34727674;
+  marker.pose.orientation.z = 0.21462883;
+  marker.pose.orientation.w = 0.9091823;
+  marker.id--;
+  pub.publish(marker);
+
+  marker.pose.position.x = -(r_w / 4.0) *marker_scale;
+  marker.pose.position.y = (r_w / 8.0) *marker_scale;
+  // -0.27395078, -0.22863284,  0.9091823 ,  0.21462883
+  marker.pose.orientation.x = 0.08198092;
+  marker.pose.orientation.y = 0.34727674;
+  marker.pose.orientation.z = -0.21462883;
+  marker.pose.orientation.w = 0.9091823;
+  marker.id--;
+  pub.publish(marker);
+
+  marker.pose.position.x = -(r_w / 4.0) *marker_scale;
+  marker.pose.position.y = -(r_w / 8.0) *marker_scale;
+  //  -0.08198092,  0.34727674,  0.21462883,  0.9091823
+  marker.pose.orientation.x = -0.08198092;
+  marker.pose.orientation.y = 0.34727674;
+  marker.pose.orientation.z = 0.21462883;
+  marker.pose.orientation.w = 0.9091823;
+  marker.id--;
+  pub.publish(marker);
+
+  marker.pose.position.x = (r_w / 4.0) *marker_scale;
+  marker.pose.position.y = -(r_w / 8.0) *marker_scale;
+  // -0.08198092, -0.34727674, -0.21462883,  0.9091823
+  marker.pose.orientation.x = -0.08198092;
+  marker.pose.orientation.y = -0.34727674;
+  marker.pose.orientation.z = -0.21462883;
+  marker.pose.orientation.w = 0.9091823;
+  marker.id--;
+  pub.publish(marker);
+}
+
 void publishFrameMarker(ros::Publisher pub,
                         const Matrix3d& rot,
                         const Vector3d& pos,
