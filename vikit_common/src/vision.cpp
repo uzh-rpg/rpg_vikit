@@ -88,7 +88,7 @@ halfSample(const cv::Mat& in, cv::Mat& out)
   }
 #endif
 
-  const int stride = in.step.p[0];
+  const int stride = in.step.p[0]/2*2;
   uint8_t* top = (uint8_t*) in.data;
   uint8_t* bottom = top + stride;
   uint8_t* end = top + stride*in.rows;
