@@ -20,7 +20,7 @@
 #include <vikit/nlls_solver.h>
 #include <vikit/performance_monitor.h>
 #include <vikit/img_align.h>
-#include <sophus/se3.h>
+#include <sophus/se3.hpp>
 
 namespace vk {
 
