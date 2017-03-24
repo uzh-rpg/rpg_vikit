@@ -16,8 +16,8 @@
 namespace vk {
 
 Homography::
-Homography(const vector<Vector2d, aligned_allocator<Vector2d> >& _fts1,
-           const vector<Vector2d, aligned_allocator<Vector2d> >& _fts2,
+Homography(const vectorA<Vector2d >& _fts1,
+           const vectorA<Vector2d >& _fts2,
            double _error_multiplier2,
            double _thresh_in_px) :
    thresh(_thresh_in_px),

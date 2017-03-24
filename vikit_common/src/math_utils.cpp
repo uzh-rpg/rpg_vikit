@@ -63,13 +63,13 @@ reprojError(const Vector3d& f1,
 }
 
 double
-computeInliers(const vector<Vector3d>& features1, // c1
-               const vector<Vector3d>& features2, // c2
+computeInliers(const vectorA<Vector3d>& features1, // c1
+               const vectorA<Vector3d>& features2, // c2
                const Matrix3d& R,                 // R_c1_c2
                const Vector3d& t,                 // c1_t
                const double reproj_thresh,
                double error_multiplier2,
-               vector<Vector3d>& xyz_vec,         // in frame c1
+               vectorA<Vector3d>& xyz_vec,         // in frame c1
                vector<int>& inliers,
                vector<int>& outliers)
 {
@@ -95,8 +95,8 @@ computeInliers(const vector<Vector3d>& features1, // c1
 }
 
 void
-computeInliersOneView(const vector<Vector3d> & feature_sphere_vec,
-                      const vector<Vector3d> & xyz_vec,
+computeInliersOneView(const vectorA<Vector3d> & feature_sphere_vec,
+                      const vectorA<Vector3d> & xyz_vec,
                       const Matrix3d &R,
                       const Vector3d &t,
                       const double reproj_thresh,

@@ -15,6 +15,8 @@
 #include <opencv2/opencv.hpp>
 #include <fstream>
 #include <Eigen/Core>
+template <class T, class Allocator =  Eigen::aligned_allocator<std::pair<const int,T>>   >
+using listA = std::list< T, Allocator > ;
 
 namespace vk {
 namespace blender_utils {
@@ -59,7 +61,7 @@ bool getDepthmapNormalAtPoint(
     return false;
 
   const size_t n_meas = (halfpatch_size*2+1)*(halfpatch_size*2+1);
-  list<Vector3d> pts;
+  listA<Vector3d> pts;
   for(int y = px[1]-halfpatch_size; y<=px[1]+halfpatch_size; ++y)
     for(int x = px[0]-halfpatch_size; x<=px[0]+halfpatch_size; ++x)
       pts.push_back(cam.cam2world(x,y)*depth.at<float>(y,x));
@@ -69,7 +71,7 @@ bool getDepthmapNormalAtPoint(
   Matrix<double, Dynamic, 1> b; b.resize(n_meas, Eigen::NoChange);
 
   size_t i = 0;
-  for(list<Vector3d>::iterator it=pts.begin(); it!=pts.end(); ++it)
+  for(listA<Vector3d>::iterator it=pts.begin(); it!=pts.end(); ++it)
   {
     A.row(i) << it->x(), it->y(), it->z(), 1.0;
     b[i] = 0;
