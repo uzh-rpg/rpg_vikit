@@ -12,6 +12,13 @@
 #include <Eigen/Core>
 #include <Eigen/StdVector>
 #include <sophus/se3.h>
+#include <vector>
+
+#ifndef RPG_SVO_VIKIT_IS_VECTOR_SPECIALIZED //Guard for rpg_svo
+#define RPG_SVO_VIKIT_IS_VECTOR_SPECIALIZED
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Vector3d)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Vector2d)
+#endif
 
 namespace vk
 {

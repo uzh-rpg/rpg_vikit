@@ -17,6 +17,7 @@ namespace file_format {
 class ImuRotvelLinacc
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   ImuRotvelLinacc() {}
   virtual ~ImuRotvelLinacc() {}
   double timestamp_;            //!< timestamp in seconds

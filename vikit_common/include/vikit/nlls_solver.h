@@ -41,6 +41,7 @@ template <int D, typename T>
 class NLLSSolver {
 
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef T ModelType;
   enum Method{GaussNewton, LevenbergMarquardt};
   enum ScaleEstimatorType{UnitScale, TDistScale, MADScale, NormalScale};
