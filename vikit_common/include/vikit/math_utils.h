@@ -14,11 +14,14 @@
 #include <sophus/se3.h>
 #include <vector>
 
+#ifndef RPG_SVO_VIKIT_IS_VECTOR_SPECIALIZED //Guard for rpg_svo
+#define RPG_SVO_VIKIT_IS_VECTOR_SPECIALIZED
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Vector3d)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Vector2d)
+#endif
+
 namespace vk
 {
-template <class T, class Allocator =  Eigen::aligned_allocator<std::pair<const int,T>>   >
-using vectorA = std::vector< T, Allocator > ;
-
 
 using namespace Eigen;
 using namespace std;
@@ -46,19 +49,19 @@ double reprojError(
     double error_multiplier2);
 
 double computeInliers(
-    const vectorA<Vector3d>& features1,
-    const vectorA<Vector3d>& features2,
+    const vector<Vector3d>& features1,
+    const vector<Vector3d>& features2,
     const Matrix3d& R,
     const Vector3d& t,
     const double reproj_thresh,
     double error_multiplier2,
-    vectorA<Vector3d>& xyz_vec,
+    vector<Vector3d>& xyz_vec,
     vector<int>& inliers,
     vector<int>& outliers);
 
 void computeInliersOneView(
-    const vectorA<Vector3d> & feature_sphere_vec,
-    const vectorA<Vector3d> & xyz_vec,
+    const vector<Vector3d> & feature_sphere_vec,
+    const vector<Vector3d> & xyz_vec,
     const Matrix3d &R,
     const Vector3d &t,
     const double reproj_thresh,
