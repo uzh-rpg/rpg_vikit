@@ -28,7 +28,7 @@ using namespace vk;
 using namespace Sophus;
 
 //! Forward Compositional Image Alignment
-class ForwardCompositionalSE3 : public NLLSSolver<6, SE3> {
+class ForwardCompositionalSE3 : public NLLSSolver<6, SE3d> {
 
 protected:
   vector<vk::PinholeCamera>& cam_pyr_;
@@ -45,7 +45,7 @@ protected:
   double                res_thresh_;
 
   virtual double
-  computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale = false);
+  computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_scale = false);
 
   virtual int
   solve();
@@ -68,7 +68,7 @@ public:
                            vector<cv::Mat>& tpl_pyr,
                            vector<cv::Mat>& img_pyr_dx,
                            vector<cv::Mat>& img_pyr_dy,
-                           SE3& init_model,
+                           SE3d& init_model,
                            int n_levels,
                            int n_iter = 50,
                            float res_thresh = 0.2,
@@ -90,13 +90,13 @@ public:
                            int test_id = 0);
 
   void
-  runOptimization(SE3& model, int levelBegin = -1, int levelEnd = -1);
+  runOptimization(SE3d& model, int levelBegin = -1, int levelEnd = -1);
 
 };
 
 
 //! Efficient Second Order Minimization (ESM)
-class SecondOrderMinimisationSE3 : public NLLSSolver<6, SE3> {
+class SecondOrderMinimisationSE3 : public NLLSSolver<6, SE3d> {
 
 protected:
   vector<vk::PinholeCamera>& cam_pyr_;
@@ -114,7 +114,7 @@ protected:
   float                 res_thresh_;
 
   virtual double
-  computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale = false);
+  computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_scale = false);
 
   virtual int
   solve();
@@ -139,7 +139,7 @@ public:
                               vector<cv::Mat>& img_pyr_dy,
                               vector<cv::Mat>& tpl_pyr_dx,
                               vector<cv::Mat>& tpl_pyr_dy,
-                              SE3& init_model,
+                              SE3d& init_model,
                               int n_levels,
                               int n_iter = 50,
                               float res_thresh = 0.2,

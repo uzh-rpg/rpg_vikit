@@ -195,7 +195,7 @@ decompose()
   {
     Matrix3d R = s * U * decompositions[i].R * V.transpose();
     Vector3d t = U * decompositions[i].t;
-    decompositions[i].T = Sophus::SE3(R, t);
+    decompositions[i].T = Sophus::SE3d(R, t);
   }
   return true;
 }
@@ -259,7 +259,7 @@ findBestDecomposition()
     double adSampsonusScores[2];
     for(size_t i=0; i<2; i++)
     {
-      Sophus::SE3 T = decompositions[i].T;
+      Sophus::SE3d T = decompositions[i].T;
       Matrix3d Essential = T.rotationMatrix() * sqew(T.translation());
       double dSumError = 0;
       for(size_t m=0; m < fts_c1.size(); m++ )
