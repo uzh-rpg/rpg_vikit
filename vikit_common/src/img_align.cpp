@@ -34,7 +34,7 @@ ForwardCompositionalSE3( vector<PinholeCamera>& cam_pyr,
                          vector<cv::Mat>& tpl_pyr,
                          vector<cv::Mat>& img_pyr_dx,
                          vector<cv::Mat>& img_pyr_dy,
-                         SE3& init_model,
+                         SE3d& init_model,
                          int n_levels,
                          int n_iter,
                          float res_thresh,
@@ -115,7 +115,7 @@ ForwardCompositionalSE3( vector<PinholeCamera>& cam_pyr,
 }
 
 void ForwardCompositionalSE3::
-runOptimization(SE3& model, int levelBegin, int levelEnd)
+runOptimization(SE3d& model, int levelBegin, int levelEnd)
 {
   if(levelBegin < 0 || levelBegin > n_levels_-1)
     levelBegin = n_levels_-1;
@@ -133,7 +133,7 @@ runOptimization(SE3& model, int levelBegin, int levelEnd)
 }
 
 double ForwardCompositionalSE3::
-computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale)
+computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_scale)
 {
   // Warp the image such that it aligns with the template image
   double chi2 = 0;
@@ -206,7 +206,7 @@ solve()
 void ForwardCompositionalSE3::
 update(const ModelType& old_model,  ModelType& new_model)
 {
-  new_model = SE3::exp(x_)*(old_model);
+  new_model = SE3d::exp(x_)*(old_model);
 }
 
 void ForwardCompositionalSE3::
@@ -252,7 +252,7 @@ SecondOrderMinimisationSE3( vector<PinholeCamera>& cam_pyr,
                             vector<cv::Mat>& img_pyr_dy,
                             vector<cv::Mat>& tpl_pyr_dx,
                             vector<cv::Mat>& tpl_pyr_dy,
-                            SE3& init_model,
+                            SE3d& init_model,
                             int n_levels,
                             int n_iter,
                             float res_thresh,
@@ -306,7 +306,7 @@ SecondOrderMinimisationSE3( vector<PinholeCamera>& cam_pyr,
 }
 
 double SecondOrderMinimisationSE3::
-computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale)
+computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_scale)
 {
   // Warp the image such that it aligns with the template image
   double chi2 = 0;
@@ -406,7 +406,7 @@ solve()
 void SecondOrderMinimisationSE3::
 update(const ModelType& old_model,  ModelType& new_model)
 {
-  new_model = SE3::exp(x_)*old_model;
+  new_model = SE3d::exp(x_)*old_model;
 }
 
 void SecondOrderMinimisationSE3::
