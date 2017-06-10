@@ -43,19 +43,19 @@ double reprojError(
     double error_multiplier2);
 
 double computeInliers(
-    const vector<Vector3d>& features1,
-    const vector<Vector3d>& features2,
+    const vector<Vector3d, aligned_allocator<Vector3d> >& features1,
+    const vector<Vector3d, aligned_allocator<Vector3d> >& features2,
     const Matrix3d& R,
     const Vector3d& t,
     const double reproj_thresh,
     double error_multiplier2,
-    vector<Vector3d>& xyz_vec,
+    vector<Vector3d, aligned_allocator<Vector3d> >& xyz_vec,
     vector<int>& inliers,
     vector<int>& outliers);
 
 void computeInliersOneView(
-    const vector<Vector3d> & feature_sphere_vec,
-    const vector<Vector3d> & xyz_vec,
+    const vector<Vector3d, aligned_allocator<Vector3d> > & feature_sphere_vec,
+    const vector<Vector3d, aligned_allocator<Vector3d> > & xyz_vec,
     const Matrix3d &R,
     const Vector3d &t,
     const double reproj_thresh,
