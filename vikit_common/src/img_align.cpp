@@ -20,7 +20,7 @@
 #include <vikit/nlls_solver.h>
 #include <vikit/performance_monitor.h>
 #include <vikit/img_align.h>
-#include <sophus/se3.h>
+#include <sophus/se3.hpp>
 
 namespace vk {
 
@@ -175,7 +175,7 @@ computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_
           float dy = 0.5*interpolateMat_32f(img_pyr_dy_[level_], uv_img_pyr[0], uv_img_pyr[1]);
 
           // evaluate jacobian
-          Matrix<double,2,6> frame_jac;
+          Eigen::Matrix<double,2,6> frame_jac;
           frameJac_xyz2uv(xyz_img, cam_pyr_[level_].fx(), frame_jac);
 
           // compute steppest descent images
@@ -376,7 +376,7 @@ computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_
           cv::Vec3f cv_float3 = depth_pyr_[level_].at<cv::Vec3f>(v,u);
           Vector3d xyz_tpl(cv_float3[0], cv_float3[1], cv_float3[2]);
           Vector3d xyz_img(model*xyz_tpl);
-          Matrix<double,2,6> frame_jac;
+          Eigen::Matrix<double,2,6> frame_jac;
           frameJac_xyz2uv(xyz_tpl, cam_pyr_[level_].fx(), frame_jac);
 
           // compute steppest descent images

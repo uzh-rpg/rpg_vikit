@@ -11,7 +11,7 @@
 #include <string>
 #include <ros/ros.h>
 #include <Eigen/Core>
-#include <sophus/se3.h>
+#include <sophus/se3.hpp>
 #include <tf/transform_broadcaster.h>
 
 namespace vk {

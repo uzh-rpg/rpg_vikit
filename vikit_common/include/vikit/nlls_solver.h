@@ -47,12 +47,12 @@ public:
   enum WeightFunctionType{UnitWeight, TDistWeight, TukeyWeight, HuberWeight};
 
 protected:
-  Matrix<double, D, D>  H_;       //!< Hessian approximation
-  Matrix<double, D, 1>  Jres_;    //!< Jacobian x Residual
-  Matrix<double, D, 1>  x_;       //!< update step
+  Eigen::Matrix<double, D, D>  H_;       //!< Hessian approximation
+  Eigen::Matrix<double, D, 1>  Jres_;    //!< Jacobian x Residual
+  Eigen::Matrix<double, D, 1>  x_;       //!< update step
   bool                  have_prior_;
   ModelType prior_;
-  Matrix<double, D, D>  I_prior_; //!< Prior information matrix (inverse covariance)
+  Eigen::Matrix<double, D, D>  I_prior_; //!< Prior information matrix (inverse covariance)
   double                chi2_;
   double                rho_;
   Method                method_;
@@ -150,7 +150,7 @@ public:
   /// Add prior to optimization.
   void setPrior(
       const ModelType&  prior,
-      const Matrix<double, D, D>&  Information);
+      const Eigen::Matrix<double, D, D>&  Information);
 
   /// Reset all parameters to restart the optimization
   void reset();
@@ -159,7 +159,7 @@ public:
   const double& getChi2() const;
 
   /// The Information matrix is equal to the inverse covariance matrix.
-  const Matrix<double, D, D>& getInformationMatrix() const;
+  const Eigen::Matrix<double, D, D>& getInformationMatrix() const;
 };
 
 } // end namespace vk
