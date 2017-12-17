@@ -20,7 +20,7 @@
 #include <vikit/nlls_solver.h>
 #include <vikit/performance_monitor.h>
 #include <vikit/img_align.h>
-#include <sophus/se3.h>
+#include <sophus/se3.hpp>
 
 namespace vk {
 
@@ -34,7 +34,7 @@ ForwardCompositionalSE3( vector<PinholeCamera>& cam_pyr,
                          vector<cv::Mat>& tpl_pyr,
                          vector<cv::Mat>& img_pyr_dx,
                          vector<cv::Mat>& img_pyr_dy,
-                         SE3& init_model,
+                         SE3d& init_model,
                          int n_levels,
                          int n_iter,
                          float res_thresh,
@@ -115,7 +115,7 @@ ForwardCompositionalSE3( vector<PinholeCamera>& cam_pyr,
 }
 
 void ForwardCompositionalSE3::
-runOptimization(SE3& model, int levelBegin, int levelEnd)
+runOptimization(SE3d& model, int levelBegin, int levelEnd)
 {
   if(levelBegin < 0 || levelBegin > n_levels_-1)
     levelBegin = n_levels_-1;
@@ -133,7 +133,7 @@ runOptimization(SE3& model, int levelBegin, int levelEnd)
 }
 
 double ForwardCompositionalSE3::
-computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale)
+computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_scale)
 {
   // Warp the image such that it aligns with the template image
   double chi2 = 0;
@@ -175,7 +175,7 @@ computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_s
           float dy = 0.5*interpolateMat_32f(img_pyr_dy_[level_], uv_img_pyr[0], uv_img_pyr[1]);
 
           // evaluate jacobian
-          Matrix<double,2,6> frame_jac;
+          Eigen::Matrix<double,2,6> frame_jac;
           frameJac_xyz2uv(xyz_img, cam_pyr_[level_].fx(), frame_jac);
 
           // compute steppest descent images
@@ -206,7 +206,7 @@ solve()
 void ForwardCompositionalSE3::
 update(const ModelType& old_model,  ModelType& new_model)
 {
-  new_model = SE3::exp(x_)*(old_model);
+  new_model = SE3d::exp(x_)*(old_model);
 }
 
 void ForwardCompositionalSE3::
@@ -252,7 +252,7 @@ SecondOrderMinimisationSE3( vector<PinholeCamera>& cam_pyr,
                             vector<cv::Mat>& img_pyr_dy,
                             vector<cv::Mat>& tpl_pyr_dx,
                             vector<cv::Mat>& tpl_pyr_dy,
-                            SE3& init_model,
+                            SE3d& init_model,
                             int n_levels,
                             int n_iter,
                             float res_thresh,
@@ -306,7 +306,7 @@ SecondOrderMinimisationSE3( vector<PinholeCamera>& cam_pyr,
 }
 
 double SecondOrderMinimisationSE3::
-computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_scale)
+computeResiduals (const SE3d& model, bool linearize_system, bool compute_weight_scale)
 {
   // Warp the image such that it aligns with the template image
   double chi2 = 0;
@@ -376,7 +376,7 @@ computeResiduals (const SE3& model, bool linearize_system, bool compute_weight_s
           cv::Vec3f cv_float3 = depth_pyr_[level_].at<cv::Vec3f>(v,u);
           Vector3d xyz_tpl(cv_float3[0], cv_float3[1], cv_float3[2]);
           Vector3d xyz_img(model*xyz_tpl);
-          Matrix<double,2,6> frame_jac;
+          Eigen::Matrix<double,2,6> frame_jac;
           frameJac_xyz2uv(xyz_tpl, cam_pyr_[level_].fx(), frame_jac);
 
           // compute steppest descent images
@@ -406,7 +406,7 @@ solve()
 void SecondOrderMinimisationSE3::
 update(const ModelType& old_model,  ModelType& new_model)
 {
-  new_model = SE3::exp(x_)*old_model;
+  new_model = SE3d::exp(x_)*old_model;
 }
 
 void SecondOrderMinimisationSE3::

@@ -9,9 +9,10 @@
 #define MATH_UTILS_H_
 
 
+#include <Eigen/LU>
 #include <Eigen/Core>
 #include <Eigen/StdVector>
-#include <sophus/se3.h>
+#include <sophus/se3.hpp>
 
 namespace vk
 {
@@ -42,19 +43,19 @@ double reprojError(
     double error_multiplier2);
 
 double computeInliers(
-    const vector<Vector3d>& features1,
-    const vector<Vector3d>& features2,
+    const vector<Vector3d, aligned_allocator<Vector3d> >& features1,
+    const vector<Vector3d, aligned_allocator<Vector3d> >& features2,
     const Matrix3d& R,
     const Vector3d& t,
     const double reproj_thresh,
     double error_multiplier2,
-    vector<Vector3d>& xyz_vec,
+    vector<Vector3d, aligned_allocator<Vector3d> >& xyz_vec,
     vector<int>& inliers,
     vector<int>& outliers);
 
 void computeInliersOneView(
-    const vector<Vector3d> & feature_sphere_vec,
-    const vector<Vector3d> & xyz_vec,
+    const vector<Vector3d, aligned_allocator<Vector3d> > & feature_sphere_vec,
+    const vector<Vector3d, aligned_allocator<Vector3d> > & xyz_vec,
     const Matrix3d &R,
     const Vector3d &t,
     const double reproj_thresh,
@@ -144,7 +145,7 @@ inline Vector2d pyrFromZero_2d(const Vector2d& uv_0, int level)
 inline void
 frameJac_xyz2uv(const Vector3d & xyz,
                  const double & focal_length,
-                 Matrix<double,2,6> & frame_jac)
+                 Eigen::Matrix<double,2,6> & frame_jac)
 {
   const double x = xyz[0];
   const double y = xyz[1];
