@@ -70,6 +70,11 @@ void halfSampleNEON( const cv::Mat& in, cv::Mat& out )
 void
 halfSample(const cv::Mat& in, cv::Mat& out)
 {
+  if (in.rows % 2 != 0 || in.cols % 2 != 0) {
+    std::cerr << "Halfsampling odd number of rows/cols is not handled." << std::endl
+              << "Reduce the number of pyramid levels." << std::endl;
+    exit(-2);
+  }
   assert( in.rows/2==out.rows && in.cols/2==out.cols);
   assert( in.type()==CV_8U && out.type()==CV_8U);
 
