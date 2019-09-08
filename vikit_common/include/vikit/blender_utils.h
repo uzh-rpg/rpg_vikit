@@ -19,10 +19,19 @@
 namespace vk {
 namespace blender_utils {
 
+enum class DepthType {
+  OPTICAL_AXIS, // Depth stored along optical axis
+  OPTICAL_RAY   // Depth stored along optical ray
+};
+
+/*
+ * Loads depth along optical ray
+ */
 void loadBlenderDepthmap(
     const std::string file_name,
     const vk::AbstractCamera& cam,
-    cv::Mat& img)
+    cv::Mat& img,
+    DepthType type=DepthType::OPTICAL_RAY)
 {
   std::ifstream file_stream(file_name.c_str());
   assert(file_stream.is_open());
@@ -35,8 +44,11 @@ void loadBlenderDepthmap(
     {
       file_stream >> depth;
       // blender:
-      Eigen::Vector2d uv(vk::project2d(cam.cam2world(x,y)));
-      *img_ptr = depth * sqrt(uv[0]*uv[0] + uv[1]*uv[1] + 1.0);
+      if (type == DepthType::OPTICAL_AXIS) {
+        Eigen::Vector2d uv(vk::project2d(cam.cam2world(x,y)));
+        depth = depth * sqrt(uv[0]*uv[0] + uv[1]*uv[1] + 1.0);
+      }
+      *img_ptr = depth;
 
       // povray
       // *img_ptr = depth/100.0; // depth is in [cm], we want [m]
